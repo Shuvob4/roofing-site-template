@@ -1,5 +1,5 @@
 formBackend:
-  workerEndpoint: "https://forms.example.workers.dev"
+  workerEndpoint: "https://roofing-form-worker.shuvobarman-sb4.workers.dev"
 quoteForm:
   formType: "quote"
   roofTypes:
@@ -21,7 +21,7 @@ contactForm:
 consent:
   labelTemplate: "I agree to the {{business_name}} privacy policy and consent to being contacted regarding my inquiry."
 spam:
-  turnstileSiteKey: "0x4AAAAAEXAMPLE"
+  turnstileSiteKey: "0x4AAAAAADrlPcrYRZMkJ_wl"
   honeypotFieldName: "website_url"
   turnstileEnabled: true
 analytics:

@@ -6,7 +6,7 @@ main = "src/index.ts"
 # Client config loaded from KV at runtime — contains destination email, R2 prefix, Turnstile secret
 [[kv_namespaces]]
 binding = "CLIENT_CONFIG"
-id = "PLACEHOLDER_KV_NAMESPACE_ID"
+id = "6022f8d83dc84db8a762c26be94ef0b0"
 
 # R2 bucket for file uploads
 [[r2_buckets]]
