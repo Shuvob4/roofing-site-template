@@ -1,0 +1,62 @@
+---
+/**
+ * Quote Request Page — Dedicated page for submitting a roofing quote request.
+ * Uses PageLayout for consistent site structure and renders the QuoteForm component.
+ *
+ * Validates: Requirements 13.1, 13.2, 13.10
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import QuoteForm from '@components/forms/QuoteForm.astro';
+import { getEntry } from 'astro:content';
+
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+---
+
+<PageLayout title={`Request a Quote | ${siteConfig.businessName}`} description="Request a free roofing quote. Upload photos, describe your issue, and we'll get back to you promptly.">
+  <section class="quote-page">
+    <div class="quote-page__container">
+      <h1 class="quote-page__heading">Request a Free Quote</h1>
+      <p class="quote-page__subheading">
+        Tell us about your roofing needs and we'll provide a detailed estimate. Upload photos to help us assess your situation faster.
+      </p>
+
+      <QuoteForm />
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .quote-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .quote-page__container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .quote-page__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    font-weight: 700;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 0.75rem;
+  }
+
+  .quote-page__subheading {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.125rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    margin: 0 0 2.5rem;
+    line-height: 1.6;
+    max-width: 40rem;
+  }
+
+  @media (max-width: 767px) {
+    .quote-page {
+      padding: 2.5rem 1rem;
+    }
+  }
+</style>

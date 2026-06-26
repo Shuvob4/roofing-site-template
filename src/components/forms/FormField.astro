@@ -1,0 +1,161 @@
+---
+/**
+ * FormField — Reusable form field component rendering label + input/select/textarea.
+ * Supports text, email, tel, number, date, select, and textarea types.
+ * Includes inline error display with role="alert" for accessibility.
+ * All touch targets meet 44px minimum height.
+ *
+ * Validates: Requirements 33.1, 33.2, 34.2
+ */
+interface Props {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  maxLength?: number;
+  placeholder?: string;
+  options?: string[];
+  rows?: number;
+}
+
+const {
+  label,
+  name,
+  type = 'text',
+  required = false,
+  maxLength,
+  placeholder,
+  options,
+  rows,
+} = Astro.props;
+
+const fieldId = `field-${name}`;
+const errorId = `${fieldId}-error`;
+const isSelect = type === 'select' || (options && options.length > 0);
+const isTextarea = type === 'textarea' || (rows && rows > 0);
+---
+
+<div class="form-field">
+  <label class="form-field__label" for={fieldId}>
+    {label}
+    {required && <span class="form-field__required" aria-hidden="true">*</span>}
+  </label>
+
+  {isSelect ? (
+    <select
+      class="form-field__input form-field__select"
+      id={fieldId}
+      name={name}
+      aria-required={required ? 'true' : undefined}
+      aria-describedby={errorId}
+    >
+      <option value="">{placeholder || `Select ${label.toLowerCase()}`}</option>
+      {options?.map((opt) => (
+        <option value={opt}>{opt}</option>
+      ))}
+    </select>
+  ) : isTextarea ? (
+    <textarea
+      class="form-field__input form-field__textarea"
+      id={fieldId}
+      name={name}
+      rows={rows || 4}
+      aria-required={required ? 'true' : undefined}
+      aria-describedby={errorId}
+      maxlength={maxLength}
+      placeholder={placeholder}
+    ></textarea>
+  ) : (
+    <input
+      class="form-field__input"
+      id={fieldId}
+      name={name}
+      type={type}
+      aria-required={required ? 'true' : undefined}
+      aria-describedby={errorId}
+      maxlength={maxLength}
+      placeholder={placeholder}
+    />
+  )}
+
+  <span class="form-field__error" id={errorId} role="alert" aria-live="assertive"></span>
+</div>
+
+<style>
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-field__label {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .form-field__required {
+    color: var(--color-accent);
+    margin-left: 0.25rem;
+  }
+
+  .form-field__input {
+    min-height: 44px;
+    padding: 0.625rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: 2px solid var(--color-secondary);
+    border-radius: var(--border-radius);
+    transition: border-color 0.2s ease;
+    width: 100%;
+  }
+
+  .form-field__input::placeholder {
+    color: var(--color-text);
+    opacity: 0.5;
+  }
+
+  .form-field__input:focus {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+    border-color: var(--color-accent);
+  }
+
+  .form-field__input[aria-invalid="true"] {
+    border-color: var(--color-emergency, #ff4444);
+  }
+
+  .form-field__textarea {
+    resize: vertical;
+    min-height: 88px;
+  }
+
+  .form-field__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  .form-field__error {
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-emergency, #ff4444);
+    min-height: 1.25rem;
+    display: block;
+  }
+
+  .form-field__error:empty {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .form-field__input {
+      transition: none;
+    }
+  }
+</style>

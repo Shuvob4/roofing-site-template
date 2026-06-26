@@ -1,0 +1,208 @@
+---
+/**
+ * BookingForm — Booking/appointment form with date picker and time slot selection.
+ * Generates time slots dynamically from forms.yaml availableHoursStart/End.
+ * Includes consent, honeypot, and Turnstile spam protection.
+ *
+ * Validates: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8, 33.1, 33.4, 34.1, 34.2
+ */
+import FormField from './FormField.astro';
+import ConsentCheckbox from './ConsentCheckbox.astro';
+import HoneypotField from './HoneypotField.astro';
+import TurnstileWidget from './TurnstileWidget.astro';
+import Button from '@components/ui/Button.astro';
+import { getEntry } from 'astro:content';
+
+const formsEntry = await getEntry('forms', 'forms');
+const formsConfig = formsEntry.data;
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+const { availableHoursStart, availableHoursEnd, maxDaysAhead } = formsConfig.bookingForm;
+const { workerEndpoint } = formsConfig.formBackend;
+const { turnstileSiteKey, honeypotFieldName, turnstileEnabled } = formsConfig.spam;
+
+const consentLabel = `I consent to being contacted by ${siteConfig.businessName} via email, phone, or SMS regarding my inquiry`;
+
+// Generate time slot options (1-hour increments)
+const timeSlots: string[] = [];
+for (let hour = availableHoursStart; hour < availableHoursEnd; hour++) {
+  const startTime = `${String(hour).padStart(2, '0')}:00`;
+  const endTime = `${String(hour + 1).padStart(2, '0')}:00`;
+  timeSlots.push(`${startTime} - ${endTime}`);
+}
+
+// Calculate min/max dates for the date picker
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+const minDate = tomorrow.toISOString().split('T')[0];
+
+const maxDate = new Date();
+maxDate.setDate(maxDate.getDate() + maxDaysAhead);
+const maxDateStr = maxDate.toISOString().split('T')[0];
+---
+
+<form
+  id="booking-form"
+  class="booking-form"
+  novalidate
+  data-worker-endpoint={workerEndpoint}
+  data-turnstile-site-key={turnstileSiteKey}
+  data-honeypot-field={honeypotFieldName}
+  data-consent-text={consentLabel}
+>
+  <div class="form-field">
+    <label class="form-field__label" for="field-preferred_date">
+      Preferred Date
+      <span class="form-field__required" aria-hidden="true">*</span>
+    </label>
+    <input
+      class="form-field__input"
+      id="field-preferred_date"
+      name="preferred_date"
+      type="date"
+      min={minDate}
+      max={maxDateStr}
+      aria-required="true"
+      aria-describedby="field-preferred_date-error"
+    />
+    <span class="form-field__error" id="field-preferred_date-error" role="alert" aria-live="assertive"></span>
+  </div>
+
+  <FormField
+    label="Preferred Time Slot"
+    name="preferred_time"
+    type="select"
+    required={true}
+    options={timeSlots}
+    placeholder="Select a time slot"
+  />
+
+  <FormField
+    label="Your Name"
+    name="customer_name"
+    type="text"
+    required={true}
+    maxLength={100}
+    placeholder="Full name"
+  />
+
+  <FormField
+    label="Phone"
+    name="phone"
+    type="tel"
+    required={true}
+    placeholder="Your phone number"
+  />
+
+  <FormField
+    label="Email"
+    name="email"
+    type="email"
+    required={true}
+    placeholder="you@example.com"
+  />
+
+  <FormField
+    label="Notes (optional)"
+    name="notes"
+    type="textarea"
+    rows={3}
+    maxLength={500}
+    placeholder="Any additional information..."
+  />
+
+  <ConsentCheckbox businessName={siteConfig.businessName} />
+
+  <HoneypotField fieldName={honeypotFieldName} />
+
+  <TurnstileWidget siteKey={turnstileSiteKey} enabled={turnstileEnabled} />
+
+  <Button type="submit" variant="primary">Book Appointment</Button>
+
+  <div class="booking-form__messages" aria-live="polite"></div>
+</form>
+
+<script>
+  import { initFormHandler } from '@scripts/form-handler';
+
+  function init() {
+    const form = document.querySelector<HTMLFormElement>('#booking-form');
+    if (!form) return;
+
+    const workerEndpoint = form.dataset.workerEndpoint || '';
+    const turnstileSiteKey = form.dataset.turnstileSiteKey || null;
+    const honeypotFieldName = form.dataset.honeypotField || 'website_url';
+    const consentText = form.dataset.consentText || '';
+
+    initFormHandler('#booking-form', {
+      workerEndpoint,
+      turnstileSiteKey,
+      honeypotFieldName,
+      maxFileSize: 0,
+      maxFiles: 0,
+      acceptedTypes: [],
+      consentText,
+    });
+  }
+
+  init();
+</script>
+
+<style>
+  .booking-form {
+    max-width: 40rem;
+  }
+
+  .booking-form__messages:empty {
+    display: none;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-field__label {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .form-field__required {
+    color: var(--color-accent);
+    margin-left: 0.25rem;
+  }
+
+  .form-field__input {
+    min-height: 44px;
+    padding: 0.625rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: 2px solid var(--color-secondary);
+    border-radius: var(--border-radius);
+    width: 100%;
+  }
+
+  .form-field__input:focus {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+    border-color: var(--color-accent);
+  }
+
+  .form-field__error {
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-emergency, #ff4444);
+    min-height: 1.25rem;
+    display: block;
+  }
+
+  .form-field__error:empty {
+    display: none;
+  }
+</style>

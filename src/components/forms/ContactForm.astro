@@ -1,0 +1,115 @@
+---
+/**
+ * ContactForm — General contact form with name, phone, email, and message fields.
+ * Includes consent, honeypot, and Turnstile spam protection.
+ *
+ * Validates: Requirements 10.3, 10.4, 10.5, 10.6, 33.1, 33.5, 34.1, 34.2
+ */
+import FormField from './FormField.astro';
+import ConsentCheckbox from './ConsentCheckbox.astro';
+import HoneypotField from './HoneypotField.astro';
+import TurnstileWidget from './TurnstileWidget.astro';
+import Button from '@components/ui/Button.astro';
+import { getEntry } from 'astro:content';
+
+const formsEntry = await getEntry('forms', 'forms');
+const formsConfig = formsEntry.data;
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+const { workerEndpoint } = formsConfig.formBackend;
+const { turnstileSiteKey, honeypotFieldName, turnstileEnabled } = formsConfig.spam;
+
+const consentLabel = `I consent to being contacted by ${siteConfig.businessName} via email, phone, or SMS regarding my inquiry`;
+---
+
+<form
+  id="contact-form"
+  class="contact-form"
+  novalidate
+  data-worker-endpoint={workerEndpoint}
+  data-turnstile-site-key={turnstileSiteKey}
+  data-honeypot-field={honeypotFieldName}
+  data-consent-text={consentLabel}
+>
+  <FormField
+    label="Name"
+    name="customer_name"
+    type="text"
+    required={true}
+    maxLength={100}
+    placeholder="Full name"
+  />
+
+  <FormField
+    label="Phone"
+    name="phone"
+    type="tel"
+    required={true}
+    placeholder="Your phone number"
+  />
+
+  <FormField
+    label="Email"
+    name="email"
+    type="email"
+    required={true}
+    placeholder="you@example.com"
+  />
+
+  <FormField
+    label="Message"
+    name="message"
+    type="textarea"
+    required={true}
+    rows={5}
+    maxLength={2000}
+    placeholder="How can we help you?"
+  />
+
+  <ConsentCheckbox businessName={siteConfig.businessName} />
+
+  <HoneypotField fieldName={honeypotFieldName} />
+
+  <TurnstileWidget siteKey={turnstileSiteKey} enabled={turnstileEnabled} />
+
+  <Button type="submit" variant="primary">Send Message</Button>
+
+  <div class="contact-form__messages" aria-live="polite"></div>
+</form>
+
+<script>
+  import { initFormHandler } from '@scripts/form-handler';
+
+  function init() {
+    const form = document.querySelector<HTMLFormElement>('#contact-form');
+    if (!form) return;
+
+    const workerEndpoint = form.dataset.workerEndpoint || '';
+    const turnstileSiteKey = form.dataset.turnstileSiteKey || null;
+    const honeypotFieldName = form.dataset.honeypotField || 'website_url';
+    const consentText = form.dataset.consentText || '';
+
+    initFormHandler('#contact-form', {
+      workerEndpoint,
+      turnstileSiteKey,
+      honeypotFieldName,
+      maxFileSize: 0,
+      maxFiles: 0,
+      acceptedTypes: [],
+      consentText,
+    });
+  }
+
+  init();
+</script>
+
+<style>
+  .contact-form {
+    max-width: 40rem;
+  }
+
+  .contact-form__messages:empty {
+    display: none;
+  }
+</style>

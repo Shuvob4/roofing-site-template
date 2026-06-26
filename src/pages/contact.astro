@@ -1,12 +1,13 @@
 ---
 /**
- * Contact Page — Displays business contact information, hours, map, and form placeholder.
+ * Contact Page — Displays business contact information, hours, map, and contact form.
  * Uses PageLayout for consistent site structure.
  * Two-column layout on desktop (info + map), stacked on mobile.
  *
- * Validates: Requirements 10.1, 10.2, 10.7
+ * Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7
  */
 import PageLayout from '@layouts/PageLayout.astro';
+import ContactForm from '@components/forms/ContactForm.astro';
 import { getEntry } from 'astro:content';
 
 const contactEntry = await getEntry('contact', 'contact');
@@ -80,11 +81,10 @@ const fullAddress = `${site.address.street}, ${site.address.city}, ${site.addres
         )}
       </div>
 
-      <!-- Contact form placeholder (will be implemented in task 11.3) -->
+      <!-- Contact form -->
       <div class="contact-page__form-section">
         <h2 class="contact-page__section-title">{contact.formHeading}</h2>
-        <!-- Contact form will be implemented in task 11.3 -->
-        <div id="contact-form"></div>
+        <ContactForm />
       </div>
     </div>
   </section>

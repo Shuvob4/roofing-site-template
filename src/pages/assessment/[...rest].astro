@@ -19,65 +19,43 @@ export async function getStaticPaths() {
 }
 
 const entries = await getCollection('assessment');
-const assessmentData = entries.length > 0 ? entries[0].data : null;
+const assessmentData = entries[0].data;
 ---
 
 <PageLayout title="Roof Assessment" description="Use our checklist to assess the condition of your roof and determine if you need professional help.">
-  {assessmentData ? (
-    <section class="assessment-page" aria-label="Roof assessment checklist">
-      <div class="assessment-page__header">
-        <h1 class="assessment-page__title">Roof Assessment Checklist</h1>
-        <p class="assessment-page__subtitle">
-          Use this checklist to evaluate the condition of your roof. If you notice any of these issues, it may be time for a professional inspection.
-        </p>
-      </div>
-      <ul class="assessment-page__checklist" role="list">
-        {assessmentData.checklistItems.map((item) => (
-          <li class="checklist-item">
-            <div class="checklist-item__marker" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="20" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-            </div>
-            <div class="checklist-item__content">
-              <span class="checklist-item__label">{item.label}</span>
-              {item.description && (
-                <p class="checklist-item__description">{item.description}</p>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div class="assessment-page__cta">
-        <a href={assessmentData.ctaLink} class="assessment-page__cta-button">
-          {assessmentData.ctaButtonText}
-        </a>
-      </div>
-    </section>
-  ) : (
-    <section class="module-unavailable" aria-label="No content">
-      <p class="module-unavailable__message">Assessment content is not available yet.</p>
-    </section>
-  )}
+  <section class="assessment-page" aria-label="Roof assessment checklist">
+    <div class="assessment-page__header">
+      <h1 class="assessment-page__title">Roof Assessment Checklist</h1>
+      <p class="assessment-page__subtitle">
+        Use this checklist to evaluate the condition of your roof. If you notice any of these issues, it may be time for a professional inspection.
+      </p>
+    </div>
+    <ul class="assessment-page__checklist" role="list">
+      {assessmentData.checklistItems.map((item) => (
+        <li class="checklist-item">
+          <div class="checklist-item__marker" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="20" height="20" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="checklist-item__content">
+            <span class="checklist-item__label">{item.label}</span>
+            {item.description && (
+              <p class="checklist-item__description">{item.description}</p>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+    <div class="assessment-page__cta">
+      <a href={assessmentData.ctaLink} class="assessment-page__cta-button">
+        {assessmentData.ctaButtonText}
+      </a>
+    </div>
+  </section>
 </PageLayout>
 
 <style>
-  .module-unavailable {
-    min-height: 40vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1.5rem;
-  }
-
-  .module-unavailable__message {
-    font-family: var(--font-body, sans-serif);
-    font-size: var(--font-size-large, 1.25rem);
-    color: var(--color-text, #fff);
-    opacity: 0.7;
-    text-align: center;
-  }
-
   .assessment-page {
     min-height: 60vh;
     padding: 3rem 1.5rem;

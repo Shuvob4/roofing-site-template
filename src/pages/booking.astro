@@ -1,0 +1,62 @@
+---
+/**
+ * Booking Page — Dedicated page for scheduling a roofing appointment.
+ * Uses PageLayout for consistent site structure and renders the BookingForm component.
+ *
+ * Validates: Requirements 14.1, 14.2, 14.8
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import BookingForm from '@components/forms/BookingForm.astro';
+import { getEntry } from 'astro:content';
+
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+---
+
+<PageLayout title={`Book an Appointment | ${siteConfig.businessName}`} description="Schedule a roofing inspection or consultation. Choose your preferred date and time slot.">
+  <section class="booking-page">
+    <div class="booking-page__container">
+      <h1 class="booking-page__heading">Book an Appointment</h1>
+      <p class="booking-page__subheading">
+        Schedule a convenient time for a roofing inspection or consultation. Select your preferred date and time below.
+      </p>
+
+      <BookingForm />
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .booking-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .booking-page__container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .booking-page__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    font-weight: 700;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 0.75rem;
+  }
+
+  .booking-page__subheading {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.125rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    margin: 0 0 2.5rem;
+    line-height: 1.6;
+    max-width: 40rem;
+  }
+
+  @media (max-width: 767px) {
+    .booking-page {
+      padding: 2.5rem 1rem;
+    }
+  }
+</style>

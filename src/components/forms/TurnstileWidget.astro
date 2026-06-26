@@ -1,0 +1,47 @@
+---
+/**
+ * TurnstileWidget — Cloudflare Turnstile CAPTCHA integration.
+ * Renders the Turnstile challenge widget when enabled.
+ * If enabled=false, renders nothing (for dev/testing).
+ * The siteKey is a PUBLIC key — no secrets in this component.
+ *
+ * Validates: Requirements 34.2, 34.4, 34.5
+ */
+interface Props {
+  siteKey: string;
+  enabled?: boolean;
+}
+
+const { siteKey, enabled = true } = Astro.props;
+---
+
+{enabled && (
+  <div class="turnstile-widget">
+    <div
+      class="cf-turnstile"
+      data-sitekey={siteKey}
+      data-callback="onTurnstileSuccess"
+      data-error-callback="onTurnstileError"
+    ></div>
+    <span class="turnstile-widget__error" role="alert" aria-live="assertive"></span>
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </div>
+)}
+
+<style>
+  .turnstile-widget {
+    margin-bottom: 1rem;
+  }
+
+  .turnstile-widget__error {
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-emergency, #ff4444);
+    min-height: 1.25rem;
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  .turnstile-widget__error:empty {
+    display: none;
+  }
+</style>

@@ -1,0 +1,18 @@
+name = "roofing-form-worker"
+compatibility_date = "2025-01-01"
+main = "src/index.ts"
+
+# KV namespace for per-client configuration
+# Client config loaded from KV at runtime — contains destination email, R2 prefix, Turnstile secret
+[[kv_namespaces]]
+binding = "CLIENT_CONFIG"
+id = "PLACEHOLDER_KV_NAMESPACE_ID"
+
+# R2 bucket for file uploads
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "roofing-form-uploads"
+
+# Secrets (never committed — set via `wrangler secret put`):
+# - RESEND_API_KEY (set per-worker, used for all clients)
+# Note: Per-client Turnstile secrets are stored in KV, not as Worker secrets

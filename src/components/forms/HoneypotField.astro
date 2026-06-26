@@ -1,0 +1,57 @@
+---
+/**
+ * HoneypotField — Hidden spam trap field for bot detection.
+ * Hidden via CSS (position:absolute + clip) — NOT display:none.
+ * Bots that auto-fill this field will be rejected by the form handler.
+ * Invisible to visual users and screen readers.
+ *
+ * Validates: Requirements 34.1
+ */
+interface Props {
+  fieldName?: string;
+}
+
+const { fieldName = 'website_url' } = Astro.props;
+
+const fieldId = `field-${fieldName}`;
+---
+
+<div class="honeypot" aria-hidden="true">
+  <label class="honeypot__label" for={fieldId}>Leave this field empty</label>
+  <input
+    class="honeypot__input"
+    type="text"
+    id={fieldId}
+    name={fieldName}
+    tabindex="-1"
+    autocomplete="off"
+    value=""
+  />
+</div>
+
+<style>
+  .honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .honeypot__label,
+  .honeypot__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

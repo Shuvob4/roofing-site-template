@@ -1,0 +1,103 @@
+---
+/**
+ * ConsentCheckbox — Required consent checkbox for CASL compliance.
+ * Renders a checkbox with configurable label, consent timestamp hidden input,
+ * and consent text hidden input (populated by JS on check).
+ * Unchecked by default; prevents form submission if not checked.
+ *
+ * Validates: Requirements 33.1, 33.2, 33.3, 33.4
+ */
+interface Props {
+  name?: string;
+  businessName: string;
+}
+
+const { name = 'consent', businessName } = Astro.props;
+
+const fieldId = `field-${name}`;
+const errorId = `${fieldId}-error`;
+const consentLabel = `I consent to being contacted by ${businessName} via email, phone, or SMS regarding my inquiry`;
+---
+
+<div class="consent-checkbox">
+  <div class="consent-checkbox__control">
+    <input
+      class="consent-checkbox__input"
+      type="checkbox"
+      id={fieldId}
+      name={name}
+      aria-required="true"
+      aria-describedby={errorId}
+      value="yes"
+    />
+    <label class="consent-checkbox__label" for={fieldId}>
+      {consentLabel}
+    </label>
+  </div>
+
+  <span class="consent-checkbox__error" id={errorId} role="alert" aria-live="assertive"></span>
+
+  <!-- Hidden inputs populated by JS when consent is given -->
+  <input type="hidden" name="consent_timestamp" value="" />
+  <input type="hidden" name="consent_text" value={consentLabel} />
+</div>
+
+<style>
+  .consent-checkbox {
+    margin-bottom: 1rem;
+  }
+
+  .consent-checkbox__control {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0.5rem 0;
+  }
+
+  .consent-checkbox__input {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--color-accent);
+    /* Use padding/margin trick to keep visual checkbox small but touch target 44px */
+    padding: 12px;
+    box-sizing: content-box;
+    position: relative;
+  }
+
+  .consent-checkbox__label {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    line-height: 1.4;
+    cursor: pointer;
+    padding-top: 0.625rem;
+  }
+
+  .consent-checkbox__input:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .consent-checkbox__input[aria-invalid="true"] {
+    outline: 2px solid var(--color-emergency, #ff4444);
+    outline-offset: 1px;
+  }
+
+  .consent-checkbox__error {
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-emergency, #ff4444);
+    min-height: 1.25rem;
+    display: block;
+    margin-left: calc(20px + 0.75rem + 24px);
+  }
+
+  .consent-checkbox__error:empty {
+    display: none;
+  }
+</style>
