@@ -1,0 +1,207 @@
+---
+/**
+ * Storm Damage page — Dedicated landing for storm-related repairs.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ * If seasonalToggle is "hidden": renders a "not currently active" message.
+ * If visible: shows full storm damage landing with headline, body, guidance, and CTA.
+ *
+ * Validates: Requirements 15.1–15.8
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Button from '@components/ui/Button.astro';
+import { getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.stormDamage ?? false;
+  if (!isEnabled) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+// Load storm damage content
+const stormEntry = await getEntry('storm-damage', 'storm');
+const storm = stormEntry?.data;
+
+const isVisible = storm?.seasonalToggle === 'visible';
+---
+
+<PageLayout title="Storm Damage Response" description="Emergency storm damage repair services. Available 24/7 for assessment, temporary repairs, and full restoration.">
+  {!isVisible ? (
+    <section class="storm-inactive" aria-label="Storm damage service inactive">
+      <div class="storm-inactive__content">
+        <h1 class="storm-inactive__heading">Storm Damage Services</h1>
+        <p class="storm-inactive__text">Our storm damage response program is not currently active. For emergency repairs, please contact us directly.</p>
+        <Button variant="primary" href="/contact">Contact Us</Button>
+      </div>
+    </section>
+  ) : (
+    <article class="storm-damage">
+      <section class="storm-damage__hero" aria-label="Storm damage response">
+        <div class="storm-damage__hero-content">
+          <h1 class="storm-damage__headline">{storm.headline}</h1>
+          <p class="storm-damage__body">{storm.bodyText}</p>
+          <Button variant="emergency" href={storm.linkDestination}>
+            {storm.buttonLabel}
+          </Button>
+        </div>
+      </section>
+
+      <section class="storm-damage__guidance" aria-labelledby="immediate-steps-heading">
+        <div class="storm-damage__guidance-content">
+          <h2 id="immediate-steps-heading" class="storm-damage__section-title">Immediate Steps After Storm Damage</h2>
+          <ol class="storm-damage__steps">
+            <li>Ensure personal safety — do not climb on a damaged roof</li>
+            <li>Document visible damage with photos from ground level</li>
+            <li>Cover any exposed areas with a tarp if safely accessible</li>
+            <li>Contact us for an emergency assessment</li>
+            <li>Contact your insurance company to start a claim</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="storm-damage__insurance" aria-labelledby="insurance-heading">
+        <div class="storm-damage__insurance-content">
+          <h2 id="insurance-heading" class="storm-damage__section-title">Insurance Claim Support</h2>
+          <p class="storm-damage__text">We work directly with your insurance company to streamline the claims process. Our team will:</p>
+          <ul class="storm-damage__list">
+            <li>Provide a detailed damage assessment report</li>
+            <li>Document all findings with professional photography</li>
+            <li>Meet with your insurance adjuster on-site</li>
+            <li>Provide accurate repair estimates in insurance-accepted formats</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="storm-damage__cta-section" aria-labelledby="cta-heading">
+        <div class="storm-damage__cta-content">
+          <h2 id="cta-heading" class="storm-damage__section-title">Ready to Get Started?</h2>
+          <p class="storm-damage__text">Schedule a free inspection or request an emergency assessment today.</p>
+          <div class="storm-damage__cta-group">
+            <Button variant="primary" href="/quote">Request a Quote</Button>
+            <Button variant="secondary" href="/booking">Book an Inspection</Button>
+          </div>
+        </div>
+      </section>
+    </article>
+  )}
+</PageLayout>
+
+<style>
+  /* ─── Inactive State ─────────────────────────────────────────────────────── */
+  .storm-inactive {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .storm-inactive__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, var(--font-size-large, 2rem));
+    color: var(--color-text);
+    margin: 0 0 1rem;
+  }
+
+  .storm-inactive__text {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0 0 2rem;
+  }
+
+  /* ─── Full Storm Damage Content ──────────────────────────────────────────── */
+  .storm-damage {
+    width: 100%;
+  }
+
+  .storm-damage__hero {
+    background-color: var(--color-secondary);
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .storm-damage__hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .storm-damage__headline {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, var(--font-size-display, 3rem));
+    color: var(--color-text);
+    margin: 0 0 1.5rem;
+    line-height: 1.1;
+  }
+
+  .storm-damage__body {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.9;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+  }
+
+  .storm-damage__guidance,
+  .storm-damage__insurance,
+  .storm-damage__cta-section {
+    padding: 3rem 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .storm-damage__section-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, var(--font-size-large, 1.5rem));
+    color: var(--color-text);
+    margin: 0 0 1.5rem;
+  }
+
+  .storm-damage__text {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.85;
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .storm-damage__steps,
+  .storm-damage__list {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    line-height: 1.8;
+    padding-left: 1.5rem;
+    margin: 0;
+  }
+
+  .storm-damage__steps li,
+  .storm-damage__list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .storm-damage__cta-section {
+    text-align: center;
+    padding-bottom: 4rem;
+  }
+
+  .storm-damage__cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 639px) {
+    .storm-damage__cta-group {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>

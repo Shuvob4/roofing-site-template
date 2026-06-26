@@ -1,0 +1,257 @@
+---
+/**
+ * Contact Page — Displays business contact information, hours, map, and form placeholder.
+ * Uses PageLayout for consistent site structure.
+ * Two-column layout on desktop (info + map), stacked on mobile.
+ *
+ * Validates: Requirements 10.1, 10.2, 10.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getEntry } from 'astro:content';
+
+const contactEntry = await getEntry('contact', 'contact');
+const siteEntry = await getEntry('site', 'config');
+
+const contact = contactEntry.data;
+const site = siteEntry.data;
+
+const fullAddress = `${site.address.street}, ${site.address.city}, ${site.address.province} ${site.address.postalCode}, ${site.address.country}`;
+---
+
+<PageLayout title={contact.heading} description={contact.subheading || `Contact ${site.businessName} for a free roofing estimate.`}>
+  <section class="contact-page">
+    <div class="contact-page__container">
+      <h1 class="contact-page__heading">{contact.heading}</h1>
+      {contact.subheading && (
+        <p class="contact-page__subheading">{contact.subheading}</p>
+      )}
+
+      <div class="contact-page__grid">
+        <!-- Left column: Contact info + hours -->
+        <div class="contact-page__info">
+          <div class="contact-page__details">
+            <h2 class="contact-page__section-title">Get in Touch</h2>
+
+            <div class="contact-page__detail-item">
+              <span class="contact-page__label">Phone</span>
+              <a href={`tel:${site.phone}`} class="contact-page__link contact-page__phone-link">
+                {site.phone}
+              </a>
+            </div>
+
+            <div class="contact-page__detail-item">
+              <span class="contact-page__label">Email</span>
+              <a href={`mailto:${site.email}`} class="contact-page__link">
+                {site.email}
+              </a>
+            </div>
+
+            <div class="contact-page__detail-item">
+              <span class="contact-page__label">Address</span>
+              <address class="contact-page__address">{fullAddress}</address>
+            </div>
+          </div>
+
+          <div class="contact-page__hours">
+            <h2 class="contact-page__section-title">Business Hours</h2>
+            <dl class="contact-page__hours-list">
+              {site.hours.map((entry) => (
+                <div class="contact-page__hours-row">
+                  <dt class="contact-page__hours-days">{entry.days}</dt>
+                  <dd class="contact-page__hours-time">{entry.hours}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+
+        <!-- Right column: Map embed -->
+        {contact.showMap && site.mapEmbedUrl && (
+          <div class="contact-page__map">
+            <iframe
+              src={site.mapEmbedUrl}
+              title="Business location on map"
+              class="contact-page__map-iframe"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+            ></iframe>
+          </div>
+        )}
+      </div>
+
+      <!-- Contact form placeholder (will be implemented in task 11.3) -->
+      <div class="contact-page__form-section">
+        <h2 class="contact-page__section-title">{contact.formHeading}</h2>
+        <!-- Contact form will be implemented in task 11.3 -->
+        <div id="contact-form"></div>
+      </div>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .contact-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .contact-page__container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .contact-page__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    font-weight: 700;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 0.75rem;
+    text-align: center;
+  }
+
+  .contact-page__subheading {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.125rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    text-align: center;
+    margin: 0 0 3rem;
+    line-height: 1.6;
+  }
+
+  .contact-page__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+
+  .contact-page__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .contact-page__section-title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 1.25rem;
+  }
+
+  .contact-page__detail-item {
+    margin-bottom: 1.25rem;
+  }
+
+  .contact-page__label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-page__link {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-primary, #2563eb);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .contact-page__link:hover {
+    text-decoration: underline;
+  }
+
+  .contact-page__phone-link {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .contact-page__address {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    font-style: normal;
+    color: var(--color-text, #1a202c);
+    line-height: 1.5;
+  }
+
+  .contact-page__hours-list {
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__hours-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .contact-page__hours-row:last-child {
+    border-bottom: none;
+  }
+
+  .contact-page__hours-days {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 500;
+    color: var(--color-text, #1a202c);
+  }
+
+  .contact-page__hours-time {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .contact-page__map {
+    border-radius: var(--border-radius, 0.5rem);
+    overflow: hidden;
+    min-height: 400px;
+  }
+
+  .contact-page__map-iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border: 0;
+    border-radius: var(--border-radius, 0.5rem);
+  }
+
+  .contact-page__form-section {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 3rem;
+  }
+
+  /* Mobile: stacked layout below 768px */
+  @media (max-width: 767px) {
+    .contact-page {
+      padding: 2.5rem 1rem;
+    }
+
+    .contact-page__grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .contact-page__map {
+      min-height: 300px;
+    }
+
+    .contact-page__map-iframe {
+      min-height: 300px;
+    }
+
+    .contact-page__subheading {
+      margin-bottom: 2rem;
+    }
+  }
+</style>

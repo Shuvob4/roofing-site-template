@@ -1,0 +1,18 @@
+mode: "dark"
+colors:
+  primary: "#1a1f36"
+  secondary: "#2d3250"
+  accent: "#e63946"
+  background: "#0f1219"
+  text: "#f8f9fa"
+  emergency: "#ff4444"
+fonts:
+  heading: "'Montserrat', sans-serif"
+  body: "'Inter', sans-serif"
+  scale:
+    small: "0.875rem"
+    base: "1rem"
+    large: "1.25rem"
+    display: "3.5rem"
+sectionDividerStyle: "diagonal"
+borderRadius: "0.75rem"

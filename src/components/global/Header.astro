@@ -1,0 +1,225 @@
+---
+/**
+ * Header — Site banner with utility bar, logo/business name, and main navigation.
+ * Reads business info from site config content collection.
+ * Navigation is fully config-driven via nav.yaml content collection.
+ * Validates: Requirements 26.3, 25.5, 11.1
+ */
+import { getEntry } from 'astro:content';
+import { getNavigation } from '@utils/get-navigation';
+
+// Load site config
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Load navigation from config (no hardcoded arrays)
+const { core, cta, modules } = await getNavigation();
+
+// Desktop nav: core items + enabled module items
+const desktopNavItems = [...core, ...modules].sort((a, b) => a.order - b.order);
+---
+
+<header role="banner" class="site-header">
+  {/* Utility bar */}
+  <div class="utility-bar">
+    <div class="container utility-bar__inner">
+      <a href={`tel:${siteConfig.phone}`} class="utility-bar__phone">
+        <span aria-hidden="true">📞</span>
+        <span>{siteConfig.phone}</span>
+      </a>
+      <a href={`mailto:${siteConfig.email}`} class="utility-bar__email">
+        <span aria-hidden="true">✉️</span>
+        <span>{siteConfig.email}</span>
+      </a>
+    </div>
+  </div>
+
+  {/* Main header bar */}
+  <div class="header-main">
+    <div class="container header-main__inner">
+      {/* Logo / Business Name */}
+      <a href="/" class="header-main__logo" aria-label={`${siteConfig.businessName} - Home`}>
+        {siteConfig.businessName}
+      </a>
+
+      {/* Desktop navigation */}
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <ul class="desktop-nav__list">
+          {desktopNavItems.map((item) => (
+            <li class="desktop-nav__item">
+              <a href={item.href} class="desktop-nav__link">{item.label}</a>
+            </li>
+          ))}
+          {cta.map((item) => (
+            <li class="desktop-nav__item">
+              <a href={item.href} class="desktop-nav__link desktop-nav__link--cta">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Mobile nav trigger */}
+      <button
+        class="mobile-nav-trigger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav-panel"
+        type="button"
+      >
+        <span class="mobile-nav-trigger__bar"></span>
+        <span class="mobile-nav-trigger__bar"></span>
+        <span class="mobile-nav-trigger__bar"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  /* ─── Utility Bar ─────────────────────────────────────────────────────────── */
+  .utility-bar {
+    background-color: var(--color-primary);
+    padding: 0.5rem 0;
+    font-size: var(--font-size-small);
+  }
+
+  .utility-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+
+  .utility-bar__phone,
+  .utility-bar__email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-text);
+    text-decoration: none;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .utility-bar__phone:hover,
+  .utility-bar__email:hover {
+    color: var(--color-accent);
+  }
+
+  /* ─── Main Header ────────────────────────────────────────────────────────── */
+  .header-main {
+    background-color: var(--color-secondary);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-main__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-main__logo {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-large);
+    font-weight: 800;
+    color: var(--color-text);
+    text-decoration: none;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-main__logo:hover {
+    color: var(--color-accent);
+  }
+
+  /* ─── Desktop Nav ────────────────────────────────────────────────────────── */
+  .desktop-nav__list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+
+  .desktop-nav__link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .desktop-nav__link:hover {
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+  }
+
+  .desktop-nav__link--cta {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+    font-weight: 700;
+  }
+
+  .desktop-nav__link--cta:hover {
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+  }
+
+  /* ─── Mobile Nav Trigger ─────────────────────────────────────────────────── */
+  .mobile-nav-trigger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+
+  .mobile-nav-trigger__bar {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-text);
+    border-radius: 1px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  /* ─── Container ──────────────────────────────────────────────────────────── */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ─── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-nav-trigger {
+      display: flex;
+    }
+
+    .utility-bar__email {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .utility-bar__phone span:last-child {
+      /* Keep phone number visible on mobile utility bar for desktop context */
+    }
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+/**
+ * Homepage — Assembles all major section components into the main landing page.
+ * Conditionally renders optional modules based on module flags.
+ * Maintains proper heading hierarchy (H1 in Hero, H2 for subsequent sections).
+ *
+ * Validates: Requirements 3.1, 8.1, 24.1, 26.1
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Hero from '@components/sections/Hero.astro';
+import TrustSignals from '@components/sections/TrustSignals.astro';
+import ServicesGrid from '@components/sections/ServicesGrid.astro';
+import TestimonialsCarousel from '@components/sections/TestimonialsCarousel.astro';
+import FAQAccordion from '@components/sections/FAQAccordion.astro';
+import SectionDivider from '@components/ui/SectionDivider.astro';
+import { getEntry } from 'astro:content';
+
+// Load module flags to conditionally show sections
+const modulesEntry = await getEntry('modules', 'modules');
+const modules = modulesEntry.data;
+
+// Load site config for page title
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+---
+
+<PageLayout title={`${siteConfig.businessName} — Professional Roofing Services`} description="Professional residential and commercial roofing services. Free estimates, licensed & insured.">
+  <Hero />
+
+  <TrustSignals />
+
+  <SectionDivider />
+
+  <section class="homepage-services" aria-labelledby="services-heading">
+    <div class="homepage-services__header">
+      <h2 id="services-heading" class="homepage-services__title">Our Services</h2>
+    </div>
+    <ServicesGrid limit={6} />
+  </section>
+
+  <SectionDivider />
+
+  <TestimonialsCarousel limit={6} />
+
+  <SectionDivider />
+
+  <section class="homepage-faq" aria-labelledby="faq-heading">
+    <div class="homepage-faq__header">
+      <h2 id="faq-heading" class="homepage-faq__title">Frequently Asked Questions</h2>
+    </div>
+    <FAQAccordion limit={4} />
+  </section>
+
+  {modules.assessment && (
+    <Fragment>
+      <SectionDivider />
+      <section class="homepage-assessment" aria-labelledby="assessment-heading">
+        <div class="homepage-assessment__header">
+          <h2 id="assessment-heading" class="homepage-assessment__title">Does Your Roof Need Attention?</h2>
+          <p class="homepage-assessment__subtitle">Use our checklist to identify common warning signs.</p>
+        </div>
+        <div class="homepage-assessment__cta">
+          <a href="/assessment" class="homepage-assessment__link">View Full Assessment Checklist</a>
+        </div>
+      </section>
+    </Fragment>
+  )}
+</PageLayout>
+
+<style>
+  .homepage-services,
+  .homepage-faq,
+  .homepage-assessment {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .homepage-services__header,
+  .homepage-faq__header,
+  .homepage-assessment__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .homepage-services__title,
+  .homepage-faq__title,
+  .homepage-assessment__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, var(--font-size-large, 2rem));
+    color: var(--color-text);
+    margin: 0 0 0.5rem;
+  }
+
+  .homepage-assessment__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .homepage-assessment__cta {
+    text-align: center;
+    margin-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .homepage-assessment__link {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--font-size-base, 1rem);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    min-height: 44px;
+    min-width: 44px;
+    transition: opacity 0.2s ease;
+  }
+
+  .homepage-assessment__link:hover {
+    opacity: 0.85;
+  }
+
+  .homepage-assessment__link:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .homepage-assessment__link {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,166 @@
+---
+/**
+ * FAQAccordion — Accessible expandable Q&A pairs.
+ * Reads FAQ entries from the faq content collection.
+ * All entries collapsed by default. Multiple entries can be expanded simultaneously.
+ * Accessible: button triggers with aria-expanded, aria-controls, keyboard Enter/Space.
+ * Rich text answers (Markdown body rendered to HTML).
+ *
+ * Props:
+ *   limit (optional) — Maximum number of FAQ entries to display (for homepage use).
+ *
+ * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
+ */
+import { getCollection } from 'astro:content';
+import { render } from 'astro:content';
+
+interface Props {
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+
+const allFaqs = await getCollection('faq');
+const faqs = limit ? allFaqs.slice(0, limit) : allFaqs;
+
+// Render each FAQ's markdown body to HTML
+const faqEntries = await Promise.all(
+  faqs.map(async (faq) => {
+    const { Content } = await render(faq);
+    return {
+      id: faq.id,
+      question: faq.data.question,
+      Content,
+    };
+  })
+);
+---
+
+<section class="faq-accordion" aria-label="Frequently Asked Questions">
+  <div class="faq-accordion__list">
+    {faqEntries.map((entry) => (
+      <div class="faq-item">
+        <button
+          class="faq-item__trigger"
+          aria-expanded="false"
+          aria-controls={`faq-${entry.id}`}
+          type="button"
+        >
+          <span class="faq-item__question">{entry.question}</span>
+          <svg class="faq-item__chevron" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div id={`faq-${entry.id}`} class="faq-item__panel" role="region" hidden>
+          <div class="faq-item__answer">
+            <entry.Content />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.faq-item__trigger').forEach((button) => {
+    button.addEventListener('click', () => {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      const panelId = button.getAttribute('aria-controls');
+      const panel = panelId ? document.getElementById(panelId) : null;
+
+      if (!panel) return;
+
+      // Toggle state — multiple items can be open simultaneously
+      button.setAttribute('aria-expanded', String(!expanded));
+
+      if (expanded) {
+        panel.setAttribute('hidden', '');
+      } else {
+        panel.removeAttribute('hidden');
+      }
+    });
+  });
+</script>
+
+<style>
+  .faq-accordion {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .faq-accordion__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq-item {
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--border-radius, 0.5rem);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+
+  .faq-item__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    gap: 1rem;
+  }
+
+  .faq-item__trigger:hover {
+    background: var(--color-hover-bg, rgba(0, 0, 0, 0.03));
+  }
+
+  .faq-item__trigger:focus-visible {
+    outline: 2px solid var(--color-primary, #2563eb);
+    outline-offset: -2px;
+  }
+
+  .faq-item__question {
+    flex: 1;
+  }
+
+  .faq-item__chevron {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item__trigger[aria-expanded='true'] .faq-item__chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-item__panel {
+    padding: 0 1.25rem 1rem;
+  }
+
+  .faq-item__panel[hidden] {
+    display: none;
+  }
+
+  .faq-item__answer {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    line-height: 1.7;
+    color: var(--color-text, #1a202c);
+    opacity: 0.85;
+  }
+
+  .faq-item__answer :global(p) {
+    margin: 0 0 0.75rem;
+  }
+
+  .faq-item__answer :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+/**
+ * PageLayout — Standard page layout wrapping BaseLayout.
+ * Includes ARIA landmarks: banner (header), main, contentinfo (footer).
+ * Global components (Header, Footer, SkipLink, MobileNav, ClickToCall, EmergencyCTA)
+ * are integrated as persistent UI elements across all pages.
+ */
+import BaseLayout from './BaseLayout.astro';
+import SkipLink from '@components/global/SkipLink.astro';
+import Header from '@components/global/Header.astro';
+import MobileNav from '@components/global/MobileNav.astro';
+import Footer from '@components/global/Footer.astro';
+import ClickToCall from '@components/global/ClickToCall.astro';
+import EmergencyCTA from '@components/global/EmergencyCTA.astro';
+import { getEntry } from 'astro:content';
+
+// Load site config for business name fallback
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Props
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = siteConfig.businessName,
+  description = '',
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <SkipLink />
+
+  <EmergencyCTA />
+
+  <Header />
+  <MobileNav />
+
+  <main id="main-content" role="main">
+    <slot />
+  </main>
+
+  <Footer />
+
+  <ClickToCall />
+</BaseLayout>

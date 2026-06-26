@@ -1,0 +1,29 @@
+formBackend:
+  workerEndpoint: "https://forms.example.workers.dev"
+quoteForm:
+  formType: "quote"
+  roofTypes:
+    - "Asphalt Shingles"
+    - "Metal Roofing"
+    - "Flat / Low-Slope"
+    - "Cedar Shake"
+    - "Tile"
+    - "Other"
+  maxFiles: 5
+  maxFileSizeMB: 2
+bookingForm:
+  formType: "booking"
+  availableHoursStart: 8
+  availableHoursEnd: 17
+  maxDaysAhead: 60
+contactForm:
+  formType: "contact"
+consent:
+  labelTemplate: "I agree to the {{business_name}} privacy policy and consent to being contacted regarding my inquiry."
+spam:
+  turnstileSiteKey: "0x4AAAAAEXAMPLE"
+  honeypotFieldName: "website_url"
+  turnstileEnabled: true
+analytics:
+  provider: "cloudflare"
+  trackingId: "cf-EXAMPLE-12345"

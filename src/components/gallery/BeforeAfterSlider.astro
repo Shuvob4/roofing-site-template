@@ -1,0 +1,224 @@
+---
+/**
+ * BeforeAfterSlider — Interactive before/after image comparison component.
+ * Uses a CSS clip-path slider controlled via an `<input type="range">`.
+ * Client-side interactivity via inline `<script>` tag (Astro island pattern).
+ *
+ * Props:
+ *   - beforeImage: { src: string, alt: string } — The "before" image (required)
+ *   - afterImage: { src: string, alt: string } — The "after" image (required)
+ *
+ * Accessibility:
+ *   - Range input has aria-label "Adjust comparison"
+ *   - Labels indicate "Before" and "After"
+ *   - Works without JS (defaults to 50/50 split)
+ *
+ * Validates: Requirements 6.2, 6.3
+ */
+
+interface Props {
+  beforeImage: { src: string; alt: string };
+  afterImage: { src: string; alt: string };
+}
+
+const { beforeImage, afterImage } = Astro.props;
+---
+
+<div class="before-after-slider" data-before-after-slider>
+  <div class="before-after-slider__container">
+    <!-- After image (full width, behind) -->
+    <img
+      class="before-after-slider__image before-after-slider__image--after"
+      src={afterImage.src}
+      alt={afterImage.alt}
+      loading="lazy"
+      width="600"
+      height="400"
+    />
+    <!-- Before image (clipped, on top) -->
+    <div class="before-after-slider__before-wrapper" data-before-wrapper>
+      <img
+        class="before-after-slider__image before-after-slider__image--before"
+        src={beforeImage.src}
+        alt={beforeImage.alt}
+        loading="lazy"
+        width="600"
+        height="400"
+      />
+    </div>
+    <!-- Slider handle -->
+    <div class="before-after-slider__handle" data-slider-handle aria-hidden="true">
+      <div class="before-after-slider__handle-line"></div>
+      <div class="before-after-slider__handle-grip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
+    </div>
+    <!-- Range input for accessibility -->
+    <input
+      class="before-after-slider__range"
+      type="range"
+      min="0"
+      max="100"
+      value="50"
+      aria-label="Adjust comparison"
+      data-slider-range
+    />
+  </div>
+  <!-- Labels -->
+  <div class="before-after-slider__labels">
+    <span class="before-after-slider__label">Before</span>
+    <span class="before-after-slider__label">After</span>
+  </div>
+</div>
+
+<style>
+  .before-after-slider {
+    width: 100%;
+  }
+
+  .before-after-slider__container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--border-radius, 0.5rem);
+    background-color: var(--color-background, #1a1a2e);
+  }
+
+  .before-after-slider__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .before-after-slider__image--after {
+    z-index: 1;
+  }
+
+  .before-after-slider__before-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .before-after-slider__image--before {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .before-after-slider__handle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    transform: translateX(-50%);
+  }
+
+  .before-after-slider__handle-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background-color: #fff;
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .before-after-slider__handle-grip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    color: var(--color-primary, #1a1a2e);
+  }
+
+  .before-after-slider__range {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    opacity: 0;
+    cursor: col-resize;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .before-after-slider__range:focus-visible + .before-after-slider__handle .before-after-slider__handle-grip {
+    outline: 3px solid var(--color-accent, #f7a400);
+    outline-offset: 2px;
+  }
+
+  .before-after-slider__labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+  }
+
+  .before-after-slider__label {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+    color: var(--color-text, #fff);
+    opacity: 0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .before-after-slider__handle,
+    .before-after-slider__before-wrapper {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Before/After Slider interactivity
+  document.querySelectorAll('[data-before-after-slider]').forEach((slider) => {
+    const range = slider.querySelector('[data-slider-range]') as HTMLInputElement;
+    const beforeWrapper = slider.querySelector('[data-before-wrapper]') as HTMLElement;
+    const handle = slider.querySelector('[data-slider-handle]') as HTMLElement;
+
+    if (!range || !beforeWrapper || !handle) return;
+
+    function updateSlider(value: number) {
+      const percent = 100 - value;
+      beforeWrapper.style.clipPath = `inset(0 ${percent}% 0 0)`;
+      handle.style.left = `${value}%`;
+    }
+
+    range.addEventListener('input', () => {
+      updateSlider(Number(range.value));
+    });
+
+    // Initialize
+    updateSlider(50);
+  });
+</script>

@@ -1,0 +1,100 @@
+---
+/**
+ * ClickToCall — Sticky floating phone button visible only on mobile (≤768px).
+ * Fixed at bottom-center, always accessible during scroll.
+ * Reads phone number and business name from site config.
+ * Meets 44x44px minimum touch target and uses tel: URI scheme.
+ *
+ * Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5
+ */
+import { getEntry } from 'astro:content';
+
+const siteEntry = await getEntry('site', 'config');
+const { phone, businessName } = siteEntry.data;
+
+// Format phone for display (e.g., "+1-555-123-4567" → "555-123-4567")
+const displayPhone = phone.replace(/^\+1-?/, '');
+// Format phone for tel: URI (strip non-digit except leading +)
+const telUri = `tel:${phone.replace(/[^\d+]/g, '')}`;
+---
+
+<a
+  class="click-to-call"
+  href={telUri}
+  aria-label={`Call ${businessName} at ${phone}`}
+>
+  <svg
+    class="click-to-call__icon"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    width="24"
+    height="24"
+    aria-hidden="true"
+  >
+    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1.003 1.003 0 011.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1v3.49c0 .55-.45 1-1 1C10.07 22 2 13.93 2 4.01c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01l-2.2 2.2z"/>
+  </svg>
+  <span class="click-to-call__text">{displayPhone}</span>
+</a>
+
+<style>
+  .click-to-call {
+    /* Only visible at ≤768px */
+    display: none;
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 2rem;
+
+    background-color: var(--color-accent);
+    color: var(--color-on-accent, #fff);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.2s ease;
+  }
+
+  .click-to-call:hover {
+    opacity: 0.9;
+  }
+
+  .click-to-call:focus-visible {
+    outline: 3px solid var(--color-on-accent, #fff);
+    outline-offset: 2px;
+  }
+
+  .click-to-call__icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .click-to-call__text {
+    white-space: nowrap;
+  }
+
+  /* Show only on mobile viewports */
+  @media (max-width: 768px) {
+    .click-to-call {
+      display: inline-flex;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .click-to-call {
+      transition: none;
+    }
+  }
+</style>

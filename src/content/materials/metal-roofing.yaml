@@ -1,0 +1,13 @@
+materialName: "Metal Roofing"
+pros:
+  - "Excellent durability and longevity"
+  - "Energy efficient with reflective coatings"
+  - "Resistant to fire, rot, and insects"
+  - "Lightweight and recyclable"
+cons:
+  - "Higher upfront cost than asphalt"
+  - "Can be noisy during heavy rain or hail"
+  - "Requires specialized installation skills"
+estimatedLifespan: "40-70 years"
+priceTier: "mid-range"
+image: "/images/materials/metal-roofing.jpg"

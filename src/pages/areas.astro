@@ -1,0 +1,247 @@
+---
+/**
+ * Service Areas Page — Displays all service areas grouped by groupLabel.
+ * Uses PageLayout for consistent site structure.
+ * Groups entries sharing the same groupLabel under a common heading.
+ * Includes an optional map embed if mapEmbedUrl is configured in site config.
+ * Handles zero entries gracefully with an empty state message.
+ *
+ * Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+// Fetch all service area entries
+const allAreas = await getCollection('areas');
+
+// Fetch site config for map embed URL
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+const mapEmbedUrl = siteConfig.mapEmbedUrl;
+
+// Group areas by groupLabel
+type AreaEntry = (typeof allAreas)[number];
+const grouped = new Map<string, AreaEntry[]>();
+const ungrouped: AreaEntry[] = [];
+
+for (const area of allAreas) {
+  const label = area.data.groupLabel;
+  if (label) {
+    if (!grouped.has(label)) {
+      grouped.set(label, []);
+    }
+    grouped.get(label)!.push(area);
+  } else {
+    ungrouped.push(area);
+  }
+}
+
+// Sort entries within each group alphabetically by locationName
+for (const [, entries] of grouped) {
+  entries.sort((a, b) => a.data.locationName.localeCompare(b.data.locationName));
+}
+ungrouped.sort((a, b) => a.data.locationName.localeCompare(b.data.locationName));
+
+// Sorted group labels for consistent rendering
+const groupLabels = [...grouped.keys()].sort();
+---
+
+<PageLayout title="Service Areas" description="Explore the areas we serve. Find your neighborhood or city in our coverage map.">
+  <section class="areas-page" aria-label="Service Areas">
+    <div class="areas-page__container">
+      <h1 class="areas-page__title">Service Areas</h1>
+      <p class="areas-page__intro">
+        We proudly serve homeowners and businesses across the following areas. Find your location below to confirm we cover your neighborhood.
+      </p>
+
+      {allAreas.length === 0 ? (
+        <p class="areas-page__empty">No service areas are currently listed. Please contact us to confirm coverage for your location.</p>
+      ) : (
+        <div class="areas-page__groups">
+          {groupLabels.map((label) => (
+            <div class="areas-page__group">
+              <h2 class="areas-page__group-heading">{label}</h2>
+              <div class="areas-page__grid">
+                {grouped.get(label)!.map((area) => (
+                  <div class="areas-page__card">
+                    <span class="areas-page__location-name">{area.data.locationName}</span>
+                    <span class="areas-page__location-type">{area.data.locationType}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {ungrouped.length > 0 && (
+            <div class="areas-page__group">
+              <h2 class="areas-page__group-heading">Other Areas</h2>
+              <div class="areas-page__grid">
+                {ungrouped.map((area) => (
+                  <div class="areas-page__card">
+                    <span class="areas-page__location-name">{area.data.locationName}</span>
+                    <span class="areas-page__location-type">{area.data.locationType}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {mapEmbedUrl && allAreas.length > 0 && (
+        <div class="areas-page__map">
+          <h2 class="areas-page__map-heading">Our Coverage Area</h2>
+          <iframe
+            src={mapEmbedUrl}
+            title="Map showing service areas coverage"
+            class="areas-page__map-iframe"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      )}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .areas-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .areas-page__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .areas-page__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    font-weight: 700;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 1rem;
+    text-align: center;
+  }
+
+  .areas-page__intro {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.125rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    text-align: center;
+    margin: 0 0 3rem;
+    max-width: 40rem;
+    margin-inline: auto;
+    line-height: 1.6;
+  }
+
+  .areas-page__empty {
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.7;
+    padding: 2rem 0;
+  }
+
+  .areas-page__groups {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .areas-page__group-heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-primary, #2563eb);
+  }
+
+  .areas-page__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .areas-page__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--border-radius, 0.5rem);
+    background: var(--color-background, #ffffff);
+    border: 1px solid color-mix(in srgb, var(--color-text, #1a202c) 12%, transparent);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .areas-page__card:hover {
+    border-color: var(--color-primary, #2563eb);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary, #2563eb) 15%, transparent);
+  }
+
+  .areas-page__location-name {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    text-align: center;
+  }
+
+  .areas-page__location-type {
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.6;
+    text-transform: capitalize;
+  }
+
+  .areas-page__map {
+    margin-top: 3.5rem;
+  }
+
+  .areas-page__map-heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 1.25rem;
+    text-align: center;
+  }
+
+  .areas-page__map-iframe {
+    width: 100%;
+    height: 400px;
+    border: 0;
+    border-radius: var(--border-radius, 0.5rem);
+  }
+
+  @media (min-width: 768px) {
+    .areas-page__map-iframe {
+      height: 500px;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .areas-page {
+      padding: 2.5rem 1rem;
+    }
+
+    .areas-page__grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .areas-page__card {
+      padding: 0.75rem 1rem;
+    }
+
+    .areas-page__intro {
+      margin-bottom: 2rem;
+    }
+  }
+</style>

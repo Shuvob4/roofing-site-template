@@ -1,0 +1,155 @@
+---
+/**
+ * Energy Efficiency Page — Showcases energy-efficient roofing options.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ *
+ * Validates: Requirements 22.1, 22.2, 22.3, 22.4, 22.5, 22.6
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.energyEfficiency ?? false;
+  if (!isEnabled) return [];
+  const entries = await getCollection('energy');
+  if (entries.length === 0) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+const entries = await getCollection('energy');
+const energyItems = entries.map((entry) => entry.data);
+---
+
+<PageLayout title="Energy Efficiency" description="Explore energy-efficient roofing options that can reduce your energy bills and environmental impact.">
+  <section class="energy-page" aria-label="Energy-efficient roofing options">
+    <div class="energy-page__header">
+      <h1 class="energy-page__title">Energy-Efficient Roofing</h1>
+      <p class="energy-page__subtitle">
+        Discover roofing solutions that help reduce energy consumption and lower your utility bills.
+      </p>
+    </div>
+    {energyItems.length === 0 ? (
+      <p class="energy-page__empty">No energy efficiency options available yet. Check back soon.</p>
+    ) : (
+      <div class="energy-page__grid">
+        {energyItems.map((item) => (
+          <article class="energy-card">
+            <h2 class="energy-card__title">{item.title}</h2>
+            <p class="energy-card__benefit">{item.benefitSummary}</p>
+            <p class="energy-card__description">{item.description}</p>
+            {item.certificationLabels && item.certificationLabels.length > 0 && (
+              <div class="energy-card__certifications" aria-label="Certifications">
+                {item.certificationLabels.map((label) => (
+                  <span class="energy-card__badge">{label}</span>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</PageLayout>
+
+<style>
+  .energy-page {
+    min-height: 60vh;
+    padding: 3rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .energy-page__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .energy-page__title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-display, 2.5rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.75rem;
+  }
+
+  .energy-page__subtitle {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .energy-page__empty {
+    text-align: center;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.6;
+  }
+
+  .energy-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .energy-card {
+    padding: 2rem;
+    background: color-mix(in srgb, var(--color-background, #1a1a2e) 80%, var(--color-primary, #4a90d9) 20%);
+    border-radius: var(--border-radius, 0.5rem);
+    border-top: 3px solid var(--color-accent, #f5a623);
+  }
+
+  .energy-card__title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.5rem;
+  }
+
+  .energy-card__benefit {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-accent, #f5a623);
+    font-weight: 600;
+    margin: 0 0 1rem;
+  }
+
+  .energy-card__description {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.85;
+    margin: 0 0 1.25rem;
+    line-height: 1.6;
+  }
+
+  .energy-card__certifications {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .energy-card__badge {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    background: color-mix(in srgb, var(--color-accent, #f5a623) 15%, transparent);
+    color: var(--color-accent, #f5a623);
+    border: 1px solid color-mix(in srgb, var(--color-accent, #f5a623) 40%, transparent);
+    border-radius: var(--border-radius, 0.5rem);
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    .energy-page__grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+</style>

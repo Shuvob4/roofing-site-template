@@ -1,0 +1,10 @@
+title: "Maple Street - Storm Damage Repair"
+beforeImage:
+  src: "/images/gallery/maple-street-before.jpg"
+  alt: "Roof with significant storm damage including torn shingles and exposed decking"
+afterImage:
+  src: "/images/gallery/maple-street-after.jpg"
+  alt: "Fully repaired roof with new impact-resistant shingles"
+description: "Emergency storm damage repair including structural reinforcement and impact-resistant shingle installation."
+category: "residential"
+order: 3

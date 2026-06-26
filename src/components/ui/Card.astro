@@ -1,0 +1,24 @@
+---
+/**
+ * Card — Reusable card container component.
+ * Uses CSS custom properties for theming. Works on both dark and light modes.
+ * Accepts a `class` prop for additional styling.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={['card', className]}>
+  <slot />
+</div>
+
+<style>
+  .card {
+    background-color: var(--color-secondary);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+  }
+</style>

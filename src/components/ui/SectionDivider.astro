@@ -1,0 +1,39 @@
+---
+/**
+ * SectionDivider — Decorative divider between major page sections.
+ * Reads the divider style from theme config or accepts an override prop.
+ * Renders the appropriate CSS class from section-dividers.css.
+ * If style is 'none', renders a simple margin spacer.
+ */
+import { getEntry } from 'astro:content';
+
+interface Props {
+  override?: 'none' | 'diagonal' | 'wave';
+  class?: string;
+}
+
+const { override, class: className } = Astro.props;
+
+// Determine the divider style: use override if provided, otherwise read from theme config
+let style: string;
+if (override) {
+  style = override;
+} else {
+  const themeEntry = await getEntry('theme', 'theme');
+  style = themeEntry.data.sectionDividerStyle || 'none';
+}
+---
+
+{style === 'none' ? (
+  <div class:list={['section-spacer', className]} aria-hidden="true"></div>
+) : (
+  <div class:list={['section-divider', `section-divider--${style}`, className]} aria-hidden="true">
+    <slot />
+  </div>
+)}
+
+<style>
+  .section-spacer {
+    margin-block: 3rem;
+  }
+</style>

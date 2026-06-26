@@ -1,0 +1,269 @@
+---
+/**
+ * MobileNav — Expandable mobile navigation overlay.
+ * Hamburger button triggers slide-out panel with all nav links.
+ * Keyboard accessible with focus trapping and Escape key close.
+ * Uses <script> tag for client-side interactivity.
+ * Navigation is fully config-driven via nav.yaml content collection.
+ * Validates: Requirements 26.3, 25.4
+ */
+import { getEntry } from 'astro:content';
+import { getNavigation } from '@utils/get-navigation';
+
+// Load site config
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Load navigation from config (no hardcoded arrays)
+const { all: navItems, cta: ctaItems } = await getNavigation();
+
+// Combine nav + CTA for mobile (all shown as links)
+const allNavItems = [...navItems, ...ctaItems.map(item => ({ label: item.label, href: item.href, order: item.order }))];
+---
+
+<div
+  id="mobile-nav-panel"
+  class="mobile-nav"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Mobile navigation menu"
+  aria-hidden="true"
+>
+  <div class="mobile-nav__overlay"></div>
+  <div class="mobile-nav__panel">
+    <div class="mobile-nav__header">
+      <span class="mobile-nav__title">{siteConfig.businessName}</span>
+      <button
+        class="mobile-nav__close"
+        aria-label="Close menu"
+        type="button"
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
+    </div>
+    <nav aria-label="Mobile navigation">
+      <ul class="mobile-nav__list">
+        {allNavItems.map((item) => (
+          <li class="mobile-nav__item">
+            <a href={item.href} class="mobile-nav__link">{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="mobile-nav__contact">
+      <a href={`tel:${siteConfig.phone}`} class="mobile-nav__phone">
+        <span aria-hidden="true">📞</span> {siteConfig.phone}
+      </a>
+      <a href={`mailto:${siteConfig.email}`} class="mobile-nav__email">
+        <span aria-hidden="true">✉️</span> {siteConfig.email}
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .mobile-nav[aria-hidden="false"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-nav__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .mobile-nav[aria-hidden="false"] .mobile-nav__overlay {
+    opacity: 1;
+  }
+
+  .mobile-nav__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    background-color: var(--color-secondary);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-nav[aria-hidden="false"] .mobile-nav__panel {
+    transform: translateX(0);
+  }
+
+  .mobile-nav__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-primary);
+  }
+
+  .mobile-nav__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+  }
+
+  .mobile-nav__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    color: var(--color-text);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+  }
+
+  .mobile-nav__close:hover {
+    background-color: var(--color-primary);
+  }
+
+  .mobile-nav__list {
+    list-style: none;
+    padding: 0.5rem 0;
+    flex: 1;
+  }
+
+  .mobile-nav__link {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    min-height: 44px;
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.15s;
+  }
+
+  .mobile-nav__link:hover {
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+  }
+
+  .mobile-nav__contact {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-nav__phone,
+  .mobile-nav__email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: var(--font-size-small);
+  }
+
+  .mobile-nav__phone:hover,
+  .mobile-nav__email:hover {
+    color: var(--color-accent);
+  }
+
+  /* Hidden on desktop */
+  @media (min-width: 769px) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Mobile navigation interactivity:
+   * - Toggle open/close via hamburger button
+   * - Close on Escape key
+   * - Trap focus within panel when open
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    const trigger = document.querySelector('.mobile-nav-trigger') as HTMLButtonElement | null;
+    const panel = document.getElementById('mobile-nav-panel');
+    const closeBtn = panel?.querySelector('.mobile-nav__close') as HTMLButtonElement | null;
+    const overlay = panel?.querySelector('.mobile-nav__overlay') as HTMLElement | null;
+
+    if (!trigger || !panel || !closeBtn) return;
+
+    function openMenu() {
+      panel!.setAttribute('aria-hidden', 'false');
+      trigger!.setAttribute('aria-expanded', 'true');
+      closeBtn!.focus();
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      panel!.setAttribute('aria-hidden', 'true');
+      trigger!.setAttribute('aria-expanded', 'false');
+      trigger!.focus();
+      document.body.style.overflow = '';
+    }
+
+    // Toggle on trigger click
+    trigger.addEventListener('click', () => {
+      const isOpen = panel!.getAttribute('aria-hidden') === 'false';
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Close on close button click
+    closeBtn.addEventListener('click', closeMenu);
+
+    // Close on overlay click
+    overlay?.addEventListener('click', closeMenu);
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel!.getAttribute('aria-hidden') === 'false') {
+        closeMenu();
+      }
+    });
+
+    // Focus trap within mobile nav
+    panel.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      if (panel!.getAttribute('aria-hidden') === 'true') return;
+
+      const focusableElements = panel!.querySelectorAll<HTMLElement>(
+        'a[href], button, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    });
+  });
+</script>

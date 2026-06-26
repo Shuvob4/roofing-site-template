@@ -1,0 +1,205 @@
+---
+/**
+ * Financing page — Displays financing and payment option entries.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ *
+ * Validates: Requirements 16.1–16.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Card from '@components/ui/Card.astro';
+import { getEntry, getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.financing ?? false;
+  if (!isEnabled) return [];
+  const allFinancing = await getCollection('financing');
+  if (allFinancing.length === 0) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+// Load financing entries
+const allFinancing = await getCollection('financing');
+---
+
+<PageLayout title="Financing & Payment Options" description="Flexible financing and payment options to make your roofing project affordable.">
+  <section class="financing" aria-labelledby="financing-heading">
+    <div class="financing__header">
+      <h1 id="financing-heading" class="financing__title">Financing & Payment Options</h1>
+      <p class="financing__subtitle">We offer flexible payment solutions to make your roofing project affordable.</p>
+    </div>
+
+    <div class="financing__grid">
+      {allFinancing.map((entry) => (
+        <Card class="financing-card">
+          <div class="financing-card__badge-row">
+            <span class:list={['financing-card__badge', `financing-card__badge--${entry.data.entryType}`]}>
+              {entry.data.entryType === 'financing' ? 'Financing' : 'Payment Method'}
+            </span>
+          </div>
+          <h2 class="financing-card__name">{entry.data.providerName}</h2>
+          <p class="financing-card__description">{entry.data.description}</p>
+          <p class="financing-card__terms">
+            <strong>Terms:</strong> {entry.data.termsSummary}
+          </p>
+          {entry.data.externalLink && (
+            <a
+              href={entry.data.externalLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="financing-card__link"
+            >
+              Learn More
+              <span class="visually-hidden"> about {entry.data.providerName} (opens in new tab)</span>
+              <svg class="financing-card__link-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M11 8.5V11.5C11 12.0523 10.5523 12.5 10 12.5H2.5C1.94772 12.5 1.5 12.0523 1.5 11.5V4C1.5 3.44772 1.94772 3 2.5 3H5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M8.5 1.5H12.5V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.5 1.5L6.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </a>
+          )}
+        </Card>
+      ))}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  /* ─── Financing Content ──────────────────────────────────────────────────── */
+  .financing {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .financing__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .financing__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, var(--font-size-display, 3rem));
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .financing__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .financing__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .financing__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .financing__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ─── Card Content ───────────────────────────────────────────────────────── */
+  .financing-card__badge-row {
+    margin-bottom: 1rem;
+  }
+
+  .financing-card__badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+    border-radius: calc(var(--border-radius) / 2);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .financing-card__badge--financing {
+    background-color: var(--color-accent);
+    color: #ffffff;
+  }
+
+  .financing-card__badge--payment-method {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .financing-card__name {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .financing-card__description {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.85;
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .financing-card__terms {
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text);
+    opacity: 0.75;
+    line-height: 1.5;
+    margin: 0 0 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .financing-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .financing-card__link:hover {
+    text-decoration: underline;
+  }
+
+  .financing-card__link:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .financing-card__link-icon {
+    flex-shrink: 0;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

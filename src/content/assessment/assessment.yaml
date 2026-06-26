@@ -1,0 +1,13 @@
+checklistItems:
+  - label: "Shingle Condition"
+    description: "Check for curling, cracking, or missing shingles that indicate aging or storm damage."
+  - label: "Flashing Integrity"
+    description: "Inspect flashing around chimneys, vents, and skylights for rust, gaps, or lifting."
+  - label: "Gutter & Drainage"
+    description: "Ensure gutters are secure, clear of debris, and draining properly away from the foundation."
+  - label: "Attic Ventilation"
+    description: "Verify adequate ventilation to prevent moisture buildup and ice dam formation."
+  - label: "Interior Water Stains"
+    description: "Look for ceiling stains, peeling paint, or mold that indicate active leaks."
+ctaButtonText: "Schedule an Inspection"
+ctaLink: "/booking"

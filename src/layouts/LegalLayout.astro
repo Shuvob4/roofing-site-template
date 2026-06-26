@@ -1,0 +1,93 @@
+---
+/**
+ * LegalLayout — Simplified layout for legal pages (privacy policy, terms).
+ * No hero section, no CTAs, no Header/Footer — just a clean reading experience.
+ * Wraps BaseLayout directly with a centered content container.
+ */
+import BaseLayout from './BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+// Load site config for business name and back-link context
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Props
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = siteConfig.businessName,
+  description = '',
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="legal-layout">
+    <header class="legal-layout__header" role="banner">
+      <div class="container">
+        <a href="/" class="legal-layout__back-link" aria-label={`Back to ${siteConfig.businessName} homepage`}>
+          &larr; Back to Home
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content" role="main" class="legal-layout__content">
+      <div class="container legal-layout__container">
+        <slot />
+      </div>
+    </main>
+
+    <footer role="contentinfo" class="legal-layout__footer">
+      <div class="container">
+        <p>&copy; {new Date().getFullYear()} {siteConfig.businessName}. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal-layout {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .legal-layout__header {
+    padding-block: 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  }
+
+  .legal-layout__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--font-size-small);
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .legal-layout__back-link:hover {
+    text-decoration: underline;
+  }
+
+  .legal-layout__content {
+    flex: 1;
+    padding-block: 3rem;
+  }
+
+  .legal-layout__container {
+    max-width: 768px;
+  }
+
+  .legal-layout__footer {
+    padding-block: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+    font-size: var(--font-size-small);
+    opacity: 0.7;
+  }
+</style>

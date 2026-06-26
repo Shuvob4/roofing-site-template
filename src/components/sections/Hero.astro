@@ -1,0 +1,130 @@
+---
+/**
+ * Hero — Full-width hero section with background image, overlay, and CTAs.
+ * First content element on the homepage, above the fold.
+ * Reads content from the hero collection (hero.yaml).
+ * Meets WCAG AA contrast requirements via semi-transparent dark overlay.
+ *
+ * Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 25.1
+ */
+import Button from '@components/ui/Button.astro';
+import { getEntry } from 'astro:content';
+
+const heroEntry = await getEntry('hero', 'hero');
+const { headline, subheadline, backgroundImage, primaryCTA, emergencyCTA } = heroEntry.data;
+---
+
+<section class="hero" aria-label="Hero">
+  <div class="hero__background" style={`background-image: url('${backgroundImage.src}')`} role="img" aria-label={backgroundImage.alt}></div>
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <h1 class="hero__headline">{headline}</h1>
+    <p class="hero__subheadline">{subheadline}</p>
+    <div class="hero__cta-group">
+      <Button variant="primary" href={primaryCTA.link}>
+        {primaryCTA.text}
+      </Button>
+      <Button variant="emergency" href={emergencyCTA.link}>
+        {emergencyCTA.text}
+      </Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero__background {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+
+  /* Semi-transparent dark overlay for WCAG AA text contrast */
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.65) 0%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    max-width: 50rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #ffffff;
+  }
+
+  .hero__headline {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, var(--font-size-display, 3.5rem));
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+    color: #ffffff;
+  }
+
+  .hero__subheadline {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 2.5vw, var(--font-size-large, 1.25rem));
+    line-height: 1.5;
+    margin: 0 0 2rem;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .hero__cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Mobile: stack CTAs vertically */
+  @media (max-width: 639px) {
+    .hero {
+      min-height: 70vh;
+    }
+
+    .hero__content {
+      padding: 2rem 1rem;
+    }
+
+    .hero__cta-group {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .hero__cta-group :global(.btn) {
+      width: 100%;
+    }
+  }
+
+  /* Large screens */
+  @media (min-width: 1024px) {
+    .hero {
+      min-height: 80vh;
+    }
+
+    .hero__content {
+      padding: 4rem 2rem;
+    }
+  }
+</style>

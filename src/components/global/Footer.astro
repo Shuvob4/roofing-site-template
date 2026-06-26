@@ -1,0 +1,247 @@
+---
+/**
+ * Footer — Site footer with contact info, nav links, legal links, and social.
+ * Reads from site config content collection for dynamic data.
+ * Navigation is fully config-driven via nav.yaml content collection.
+ * Validates: Requirement 32.4
+ */
+import { getEntry } from 'astro:content';
+import { getNavigation } from '@utils/get-navigation';
+
+// Load site config
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Load navigation from config (no hardcoded arrays)
+const { all: allNavItems } = await getNavigation();
+
+// Legal links
+const legalLinks = [
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Service', href: '/terms' },
+];
+
+// Dynamic year
+const currentYear = new Date().getFullYear();
+
+// Social links (only render if configured)
+const social = siteConfig.social;
+---
+
+<footer role="contentinfo" class="site-footer">
+  <div class="container footer__inner">
+    {/* Contact Info */}
+    <div class="footer__section footer__contact">
+      <h2 class="footer__heading">{siteConfig.businessName}</h2>
+      <address class="footer__address">
+        <p>{siteConfig.address.street}</p>
+        <p>{siteConfig.address.city}, {siteConfig.address.province} {siteConfig.address.postalCode}</p>
+        <p>{siteConfig.address.country}</p>
+      </address>
+      <div class="footer__contact-links">
+        <a href={`tel:${siteConfig.phone}`} class="footer__link">
+          <span aria-hidden="true">📞</span> {siteConfig.phone}
+        </a>
+        <a href={`mailto:${siteConfig.email}`} class="footer__link">
+          <span aria-hidden="true">✉️</span> {siteConfig.email}
+        </a>
+      </div>
+    </div>
+
+    {/* Quick Navigation */}
+    <div class="footer__section footer__nav">
+      <h2 class="footer__heading">Quick Links</h2>
+      <nav aria-label="Footer navigation">
+        <ul class="footer__nav-list">
+          {allNavItems.map((item) => (
+            <li>
+              <a href={item.href} class="footer__nav-link">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    {/* Legal & Social */}
+    <div class="footer__section footer__legal">
+      <h2 class="footer__heading">Legal</h2>
+      <ul class="footer__legal-list">
+        {legalLinks.map((link) => (
+          <li>
+            <a href={link.href} class="footer__nav-link">{link.label}</a>
+          </li>
+        ))}
+      </ul>
+
+      {social && (
+        <div class="footer__social">
+          <h3 class="footer__subheading">Follow Us</h3>
+          <div class="footer__social-links">
+            {social.google && (
+              <a href={social.google} target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="Google Business Profile">
+                Google
+              </a>
+            )}
+            {social.facebook && (
+              <a href={social.facebook} target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="Facebook">
+                Facebook
+              </a>
+            )}
+            {social.instagram && (
+              <a href={social.instagram} target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="Instagram">
+                Instagram
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Copyright */}
+  <div class="footer__copyright">
+    <div class="container">
+      <p>&copy; {currentYear} {siteConfig.businessName}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    padding-top: 3rem;
+  }
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .footer__heading {
+    font-family: var(--font-heading);
+    font-size: calc(var(--font-size-base) * 1.125);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+
+  .footer__subheading {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  /* ─── Contact ────────────────────────────────────────────────────────────── */
+  .footer__address {
+    font-style: normal;
+    line-height: 1.8;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+  }
+
+  .footer__contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer__link:hover {
+    color: var(--color-accent);
+  }
+
+  /* ─── Navigation ─────────────────────────────────────────────────────────── */
+  .footer__nav-list,
+  .footer__legal-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .footer__nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.25rem 0;
+    color: var(--color-text);
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .footer__nav-link:hover {
+    opacity: 1;
+    color: var(--color-accent);
+  }
+
+  /* ─── Social ─────────────────────────────────────────────────────────────── */
+  .footer__social-links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .footer__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    background-color: var(--color-secondary);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .footer__social-link:hover {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+  }
+
+  /* ─── Copyright ──────────────────────────────────────────────────────────── */
+  .footer__copyright {
+    border-top: 1px solid var(--color-secondary);
+    padding: 1.25rem 0;
+    text-align: center;
+    font-size: var(--font-size-small);
+    opacity: 0.7;
+  }
+
+  /* ─── Container ──────────────────────────────────────────────────────────── */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ─── Responsive ─────────────────────────────────────────────────────────── */
+  @media (min-width: 768px) {
+    .footer__inner {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .footer__nav-list {
+      columns: 2;
+      column-gap: 1rem;
+    }
+  }
+</style>

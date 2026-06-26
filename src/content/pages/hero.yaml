@@ -1,0 +1,12 @@
+headline: "Your Trusted Local Roofing Experts"
+subheadline: "Professional roof repair, installation, and maintenance serving the Greater Toronto Area for over 20 years."
+backgroundImage:
+  src: "/images/hero/hero-worker.jpg"
+  alt: "Professional roofer installing shingles on a residential home"
+primaryCTA:
+  text: "Get a Free Quote"
+  link: "/quote"
+emergencyCTA:
+  text: "24/7 Emergency Repair"
+  link: "tel:+1-555-123-4567"
+  color: "#ff4444"

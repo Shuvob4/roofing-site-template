@@ -1,0 +1,61 @@
+---
+/**
+ * FAQ Page — Dedicated FAQ page showing all frequently asked questions.
+ * Uses PageLayout for consistent site structure.
+ * Renders the FAQAccordion component with no limit (all entries shown).
+ *
+ * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import FAQAccordion from '@components/sections/FAQAccordion.astro';
+---
+
+<PageLayout title="Frequently Asked Questions" description="Find answers to common roofing questions about inspections, repairs, insurance claims, and more.">
+  <section class="faq-page">
+    <div class="faq-page__container">
+      <h1 class="faq-page__title">Frequently Asked Questions</h1>
+      <p class="faq-page__intro">Find answers to our most commonly asked questions below. If you don't see what you're looking for, feel free to contact us.</p>
+      <FAQAccordion />
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .faq-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .faq-page__container {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .faq-page__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    font-weight: 700;
+    color: var(--color-text, #1a202c);
+    margin: 0 0 1rem;
+    text-align: center;
+  }
+
+  .faq-page__intro {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.125rem);
+    color: var(--color-text, #1a202c);
+    opacity: 0.8;
+    text-align: center;
+    margin: 0 0 3rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 639px) {
+    .faq-page {
+      padding: 2.5rem 1rem;
+    }
+
+    .faq-page__intro {
+      margin-bottom: 2rem;
+    }
+  }
+</style>

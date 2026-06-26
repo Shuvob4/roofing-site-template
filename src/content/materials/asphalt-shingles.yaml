@@ -1,0 +1,13 @@
+materialName: "Asphalt Shingles"
+pros:
+  - "Most affordable roofing option"
+  - "Wide variety of colours and styles"
+  - "Easy to install and repair"
+  - "Readily available from multiple manufacturers"
+cons:
+  - "Shorter lifespan than premium materials"
+  - "Susceptible to wind uplift in severe storms"
+  - "Less environmentally friendly"
+estimatedLifespan: "20-30 years"
+priceTier: "budget"
+image: "/images/materials/asphalt-shingles.jpg"

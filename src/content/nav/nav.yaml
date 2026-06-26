@@ -1,0 +1,71 @@
+# Core navigation (always shown)
+core:
+  - label: "Home"
+    href: "/"
+    order: 0
+  - label: "Services"
+    href: "/services"
+    order: 1
+  - label: "Gallery"
+    href: "/gallery"
+    order: 2
+  - label: "Reviews"
+    href: "/reviews"
+    order: 3
+  - label: "Areas"
+    href: "/areas"
+    order: 4
+  - label: "FAQ"
+    href: "/faq"
+    order: 5
+  - label: "Contact"
+    href: "/contact"
+    order: 6
+
+# CTA navigation (styled as buttons, shown in header)
+cta:
+  - label: "Get a Quote"
+    href: "/quote"
+    order: 0
+  - label: "Book Inspection"
+    href: "/booking"
+    order: 1
+
+# Module-controlled navigation (shown only when module enabled flag is true)
+modules:
+  - moduleName: "stormDamage"
+    label: "Storm Damage"
+    href: "/storm-damage"
+    order: 1
+  - moduleName: "financing"
+    label: "Financing"
+    href: "/financing"
+    order: 2
+  - moduleName: "warranty"
+    label: "Warranty"
+    href: "/warranty"
+    order: 3
+  - moduleName: "maintenance"
+    label: "Maintenance"
+    href: "/maintenance"
+    order: 4
+  - moduleName: "insuranceClaims"
+    label: "Insurance Claims"
+    href: "/insurance-claims"
+    order: 5
+  - moduleName: "assessment"
+    label: "Roof Assessment"
+    href: "/assessment"
+    order: 6
+  - moduleName: "materials"
+    label: "Materials"
+    href: "/materials"
+    order: 7
+  - moduleName: "energyEfficiency"
+    label: "Energy Efficiency"
+    href: "/energy-efficiency"
+    order: 8
+  - moduleName: "neighborhoods"
+    label: "Neighborhoods"
+    href: "/neighborhoods"
+    order: 9

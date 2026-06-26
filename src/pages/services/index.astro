@@ -1,0 +1,79 @@
+---
+/**
+ * Services Overview Page — Lists ALL services from the content collection.
+ * Groups entries by category (Residential / Commercial) with visible headings.
+ * Shows configurable empty-state message if zero entries exist.
+ *
+ * Validates: Requirements 4.1, 4.4, 4.6, 4.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import ServicesGrid from '@components/sections/ServicesGrid.astro';
+import { getCollection } from 'astro:content';
+
+const allServices = await getCollection('services');
+const hasServices = allServices.length > 0;
+---
+
+<PageLayout title="Our Services" description="Browse our residential and commercial roofing services.">
+  <section class="services-page">
+    <div class="services-page__header">
+      <h1 class="services-page__title">Our Services</h1>
+      <p class="services-page__subtitle">
+        Professional roofing solutions for residential and commercial properties.
+      </p>
+    </div>
+
+    {hasServices ? (
+      <ServicesGrid />
+    ) : (
+      <div class="services-page__empty" role="status">
+        <p>No services are currently listed. Please check back soon for our full range of roofing solutions.</p>
+      </div>
+    )}
+  </section>
+</PageLayout>
+
+<style>
+  .services-page {
+    min-height: 60vh;
+  }
+
+  .services-page__header {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 0;
+    text-align: center;
+  }
+
+  .services-page__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, var(--font-size-display, 3.5rem));
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .services-page__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-large, 1.25rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .services-page__empty {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .services-page__empty p {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+</style>

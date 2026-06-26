@@ -1,0 +1,310 @@
+---
+/**
+ * Materials Comparison Page — Side-by-side comparison of roofing materials.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled OR fewer than 2 entries: page is NOT generated at build time.
+ *
+ * Validates: Requirements 21.1, 21.2, 21.3, 21.4, 21.5, 21.6, 21.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.materials ?? false;
+  if (!isEnabled) return [];
+  const entries = await getCollection('materials');
+  if (entries.length < 2) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+const entries = await getCollection('materials');
+const materials = entries.map((entry) => entry.data);
+---
+
+<PageLayout title="Materials Comparison" description="Compare roofing materials side by side to find the best option for your home.">
+  <section class="materials-page" aria-label="Roofing materials comparison">
+    <div class="materials-page__header">
+      <h1 class="materials-page__title">Roofing Materials Comparison</h1>
+      <p class="materials-page__subtitle">
+        Compare roofing options side by side to find the best fit for your home and budget.
+      </p>
+    </div>
+
+    {/* Desktop table layout */}
+    <div class="materials-table-wrapper" role="region" aria-label="Materials comparison table" tabindex="0">
+      <table class="materials-table">
+        <thead>
+          <tr>
+            <th scope="col">Material</th>
+            <th scope="col">Pros</th>
+            <th scope="col">Cons</th>
+            <th scope="col">Lifespan</th>
+            <th scope="col">Price Tier</th>
+          </tr>
+        </thead>
+        <tbody>
+          {materials.map((material) => (
+            <tr>
+              <th scope="row">{material.materialName}</th>
+              <td>
+                <ul class="materials-table__list">
+                  {material.pros.map((pro) => <li>{pro}</li>)}
+                </ul>
+              </td>
+              <td>
+                <ul class="materials-table__list">
+                  {material.cons.map((con) => <li>{con}</li>)}
+                </ul>
+              </td>
+              <td>{material.estimatedLifespan}</td>
+              <td>
+                <span class={`materials-table__tier materials-table__tier--${material.priceTier}`}>
+                  {material.priceTier}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Mobile card layout */}
+    <div class="materials-cards">
+      {materials.map((material) => (
+        <article class="material-card">
+          <h2 class="material-card__name">{material.materialName}</h2>
+          <div class="material-card__meta">
+            <span class={`material-card__tier material-card__tier--${material.priceTier}`}>
+              {material.priceTier}
+            </span>
+            <span class="material-card__lifespan">{material.estimatedLifespan}</span>
+          </div>
+          <div class="material-card__section">
+            <h3 class="material-card__section-title">Pros</h3>
+            <ul class="material-card__list">
+              {material.pros.map((pro) => <li>{pro}</li>)}
+            </ul>
+          </div>
+          <div class="material-card__section">
+            <h3 class="material-card__section-title">Cons</h3>
+            <ul class="material-card__list material-card__list--cons">
+              {material.cons.map((con) => <li>{con}</li>)}
+            </ul>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .materials-page {
+    min-height: 60vh;
+    padding: 3rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .materials-page__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .materials-page__title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-display, 2.5rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.75rem;
+  }
+
+  .materials-page__subtitle {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Desktop table */
+  .materials-table-wrapper {
+    display: none;
+    overflow-x: auto;
+  }
+
+  .materials-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+  }
+
+  .materials-table th,
+  .materials-table td {
+    padding: 1rem;
+    text-align: left;
+    color: var(--color-text, #fff);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text, #fff) 15%, transparent);
+    vertical-align: top;
+  }
+
+  .materials-table thead th {
+    font-family: var(--font-heading, sans-serif);
+    font-weight: 700;
+    font-size: var(--font-size-base, 1rem);
+    background: color-mix(in srgb, var(--color-background, #1a1a2e) 70%, var(--color-primary, #4a90d9) 30%);
+  }
+
+  .materials-table tbody th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .materials-table__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .materials-table__list li {
+    padding: 0.2rem 0;
+    line-height: 1.4;
+  }
+
+  .materials-table__list li::before {
+    content: "• ";
+    color: var(--color-primary, #4a90d9);
+  }
+
+  .materials-table__tier {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--border-radius, 0.5rem);
+    font-weight: 600;
+    text-transform: capitalize;
+    font-size: var(--font-size-small, 0.875rem);
+  }
+
+  .materials-table__tier--budget {
+    background: color-mix(in srgb, #22c55e 20%, transparent);
+    color: #4ade80;
+  }
+
+  .materials-table__tier--mid-range {
+    background: color-mix(in srgb, #f59e0b 20%, transparent);
+    color: #fbbf24;
+  }
+
+  .materials-table__tier--premium {
+    background: color-mix(in srgb, #8b5cf6 20%, transparent);
+    color: #a78bfa;
+  }
+
+  /* Mobile cards */
+  .materials-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .material-card {
+    padding: 1.5rem;
+    background: color-mix(in srgb, var(--color-background, #1a1a2e) 80%, var(--color-primary, #4a90d9) 20%);
+    border-radius: var(--border-radius, 0.5rem);
+  }
+
+  .material-card__name {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.75rem;
+  }
+
+  .material-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .material-card__tier {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--border-radius, 0.5rem);
+    font-weight: 600;
+    text-transform: capitalize;
+    font-size: var(--font-size-small, 0.875rem);
+  }
+
+  .material-card__tier--budget {
+    background: color-mix(in srgb, #22c55e 20%, transparent);
+    color: #4ade80;
+  }
+
+  .material-card__tier--mid-range {
+    background: color-mix(in srgb, #f59e0b 20%, transparent);
+    color: #fbbf24;
+  }
+
+  .material-card__tier--premium {
+    background: color-mix(in srgb, #8b5cf6 20%, transparent);
+    color: #a78bfa;
+  }
+
+  .material-card__lifespan {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #fff);
+    opacity: 0.7;
+  }
+
+  .material-card__section {
+    margin-top: 1rem;
+  }
+
+  .material-card__section-title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 600;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.5rem;
+  }
+
+  .material-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .material-card__list li {
+    padding: 0.2rem 0;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #fff);
+    opacity: 0.85;
+    line-height: 1.4;
+  }
+
+  .material-card__list li::before {
+    content: "✓ ";
+    color: #4ade80;
+  }
+
+  .material-card__list--cons li::before {
+    content: "✗ ";
+    color: #f87171;
+  }
+
+  @media (min-width: 768px) {
+    .materials-table-wrapper {
+      display: block;
+    }
+
+    .materials-cards {
+      display: none;
+    }
+  }
+</style>

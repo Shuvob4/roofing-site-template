@@ -1,0 +1,247 @@
+---
+/**
+ * Maintenance Tips page — Displays seasonal roof maintenance tips.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ *
+ * Validates: Requirements 18.1–18.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Card from '@components/ui/Card.astro';
+import { getEntry, getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.maintenance ?? false;
+  if (!isEnabled) return [];
+  const allMaintenance = await getCollection('maintenance');
+  if (allMaintenance.length === 0) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+// Load maintenance entries
+const allMaintenance = await getCollection('maintenance');
+
+// Season display config
+const seasonConfig: Record<string, { label: string; icon: string }> = {
+  spring: {
+    label: 'Spring',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  },
+  summer: {
+    label: 'Summer',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  },
+  fall: {
+    label: 'Fall',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1 2 2.3 4.5A7 7 0 0 1 11 20z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+  },
+  winter: {
+    label: 'Winter',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="20" y1="16" x2="4" y2="8"/><line x1="4" y1="16" x2="20" y2="8"/></svg>',
+  },
+};
+
+// Group tips by season
+const seasonOrder = ['spring', 'summer', 'fall', 'winter'] as const;
+
+// Render all entries and group by season
+type RenderedEntry = {
+  id: string;
+  data: { title: string; season: string[]; image?: string };
+  Content: any;
+};
+
+const renderedEntries: RenderedEntry[] = await Promise.all(
+  allMaintenance.map(async (entry) => {
+    const { Content } = await render(entry);
+    return {
+      id: entry.id,
+      data: entry.data,
+      Content,
+    };
+  })
+);
+
+// Group by season (a tip can appear in multiple seasons)
+const groupedBySeason = seasonOrder.reduce((acc, season) => {
+  acc[season] = renderedEntries.filter((entry) =>
+    entry.data.season.includes(season)
+  );
+  return acc;
+}, {} as Record<string, RenderedEntry[]>);
+---
+
+<PageLayout title="Seasonal Maintenance Tips" description="Expert seasonal roof maintenance advice to prolong your roof's lifespan and identify issues early.">
+  <section class="maintenance" aria-labelledby="maintenance-heading">
+    <div class="maintenance__header">
+      <h1 id="maintenance-heading" class="maintenance__title">Seasonal Maintenance Tips</h1>
+      <p class="maintenance__subtitle">Keep your roof in top condition year-round with our expert maintenance advice.</p>
+    </div>
+
+    {seasonOrder.map((season) => {
+      const tips = groupedBySeason[season];
+      if (tips.length === 0) return null;
+      const config = seasonConfig[season];
+      return (
+        <div class="maintenance__season" id={`season-${season}`}>
+          <div class="maintenance__season-header">
+            <span class="maintenance__season-icon" aria-hidden="true">
+              <Fragment set:html={config.icon} />
+            </span>
+            <h2 class="maintenance__season-title">{config.label}</h2>
+          </div>
+          <div class="maintenance__tips-grid">
+            {tips.map(({ data, Content }) => (
+              <Card class="maintenance-tip-card">
+                {data.image && (
+                  <div class="maintenance-tip-card__image">
+                    <img
+                      src={data.image}
+                      alt={data.title}
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                    />
+                  </div>
+                )}
+                <div class="maintenance-tip-card__body">
+                  <h3 class="maintenance-tip-card__title">{data.title}</h3>
+                  <div class="maintenance-tip-card__content">
+                    <Content />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+  </section>
+</PageLayout>
+
+<style>
+  /* ─── Maintenance Content ────────────────────────────────────────────────── */
+  .maintenance {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .maintenance__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .maintenance__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, var(--font-size-display, 3rem));
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .maintenance__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  /* ─── Season Groups ──────────────────────────────────────────────────────── */
+  .maintenance__season {
+    margin-bottom: 3rem;
+  }
+
+  .maintenance__season:last-child {
+    margin-bottom: 0;
+  }
+
+  .maintenance__season-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-accent);
+  }
+
+  .maintenance__season-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent);
+  }
+
+  .maintenance__season-title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .maintenance__tips-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .maintenance__tips-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ─── Tip Cards ──────────────────────────────────────────────────────────── */
+  .maintenance-tip-card__image {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
+
+  .maintenance-tip-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .maintenance-tip-card__body {
+    padding: 1.5rem;
+  }
+
+  .maintenance-tip-card__title {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .maintenance-tip-card__content {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.85;
+    line-height: 1.6;
+  }
+
+  .maintenance-tip-card__content :global(p) {
+    margin: 0 0 0.75rem;
+  }
+
+  .maintenance-tip-card__content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .maintenance-tip-card__content :global(ul),
+  .maintenance-tip-card__content :global(ol) {
+    padding-left: 1.25rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .maintenance-tip-card__content :global(li) {
+    margin-bottom: 0.25rem;
+  }
+</style>

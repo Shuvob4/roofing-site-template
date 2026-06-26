@@ -1,0 +1,10 @@
+title: "Smith Residence - Complete Roof Replacement"
+beforeImage:
+  src: "/images/gallery/smith-before.jpg"
+  alt: "Damaged asphalt shingle roof with visible wear and missing shingles"
+afterImage:
+  src: "/images/gallery/smith-after.jpg"
+  alt: "Newly installed architectural shingles on the Smith residence"
+description: "Full tear-off and replacement of a 25-year-old asphalt shingle roof with premium architectural shingles."
+category: "residential"
+order: 1

@@ -1,0 +1,258 @@
+---
+/**
+ * EmergencyCTA — Persistent emergency call-to-action bar at the top of all pages.
+ * Uses emergency color from theme config.
+ * Mobile (≤768px): tap triggers phone call via tel: URI.
+ * Desktop (>768px): click expands to reveal phone number and availability hours.
+ *
+ * Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5
+ */
+import { getEntry } from 'astro:content';
+
+const emergencyEntry = await getEntry('emergency', 'emergency');
+const { text, phone, availabilityHours } = emergencyEntry.data;
+
+const siteEntry = await getEntry('site', 'config');
+const { businessName } = siteEntry.data;
+
+// Format phone for tel: URI
+const telUri = `tel:${phone.replace(/[^\d+]/g, '')}`;
+// Format phone for display
+const displayPhone = phone.replace(/^\+1-?/, '');
+---
+
+<div class="emergency-cta" role="complementary" aria-label="Emergency roofing service">
+  <!-- Mobile: direct call link -->
+  <a
+    class="emergency-cta__mobile"
+    href={telUri}
+    aria-label={`Emergency: Call ${businessName} at ${phone}`}
+  >
+    <svg
+      class="emergency-cta__icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width="18"
+      height="18"
+      aria-hidden="true"
+    >
+      <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1.003 1.003 0 011.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1v3.49c0 .55-.45 1-1 1C10.07 22 2 13.93 2 4.01c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01l-2.2 2.2z"/>
+    </svg>
+    <span class="emergency-cta__text">{text}</span>
+  </a>
+
+  <!-- Desktop: expandable button -->
+  <button
+    class="emergency-cta__desktop"
+    type="button"
+    aria-expanded="false"
+    aria-controls="emergency-details"
+    aria-label={`${text} — click to see phone number and hours`}
+  >
+    <svg
+      class="emergency-cta__icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width="18"
+      height="18"
+      aria-hidden="true"
+    >
+      <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1.003 1.003 0 011.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1v3.49c0 .55-.45 1-1 1C10.07 22 2 13.93 2 4.01c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01l-2.2 2.2z"/>
+    </svg>
+    <span class="emergency-cta__text">{text}</span>
+    <svg
+      class="emergency-cta__chevron"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width="16"
+      height="16"
+      aria-hidden="true"
+    >
+      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+    </svg>
+  </button>
+
+  <!-- Expanded details (desktop only) -->
+  <div class="emergency-cta__details" id="emergency-details" hidden>
+    <a
+      href={telUri}
+      class="emergency-cta__phone-link"
+      aria-label={`Call ${businessName} at ${phone}`}
+    >
+      {displayPhone}
+    </a>
+    <span class="emergency-cta__hours">{availabilityHours}</span>
+  </div>
+</div>
+
+<style>
+  .emergency-cta {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-emergency, #ff4444);
+    color: var(--color-on-emergency, #fff);
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    text-align: center;
+  }
+
+  /* Mobile link — shown ≤768px */
+  .emergency-cta__mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.25rem 0.5rem;
+    color: var(--color-on-emergency, #fff);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .emergency-cta__mobile:hover {
+    opacity: 0.9;
+  }
+
+  .emergency-cta__mobile:focus-visible {
+    outline: 3px solid var(--color-on-emergency, #fff);
+    outline-offset: 2px;
+  }
+
+  /* Desktop button — shown >768px */
+  .emergency-cta__desktop {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.25rem 0.5rem;
+    color: var(--color-on-emergency, #fff);
+    background: none;
+    border: none;
+    font-weight: 700;
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    cursor: pointer;
+  }
+
+  .emergency-cta__desktop:hover {
+    opacity: 0.9;
+  }
+
+  .emergency-cta__desktop:focus-visible {
+    outline: 3px solid var(--color-on-emergency, #fff);
+    outline-offset: 2px;
+  }
+
+  .emergency-cta__chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .emergency-cta__desktop[aria-expanded="true"] .emergency-cta__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Details panel */
+  .emergency-cta__details {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+    padding-top: 0.25rem;
+  }
+
+  .emergency-cta__details[hidden] {
+    display: none;
+  }
+
+  .emergency-cta__details:not([hidden]) {
+    display: flex;
+  }
+
+  .emergency-cta__phone-link {
+    color: var(--color-on-emergency, #fff);
+    font-weight: 700;
+    text-decoration: underline;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .emergency-cta__phone-link:focus-visible {
+    outline: 3px solid var(--color-on-emergency, #fff);
+    outline-offset: 2px;
+  }
+
+  .emergency-cta__hours {
+    opacity: 0.9;
+    font-style: italic;
+  }
+
+  .emergency-cta__icon {
+    flex-shrink: 0;
+  }
+
+  .emergency-cta__text {
+    white-space: nowrap;
+  }
+
+  /* Responsive behavior */
+  @media (min-width: 769px) {
+    .emergency-cta__mobile {
+      display: none;
+    }
+
+    .emergency-cta__desktop {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .emergency-cta__desktop {
+      display: none;
+    }
+
+    .emergency-cta__details {
+      display: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .emergency-cta__chevron {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Desktop expand/collapse behavior for EmergencyCTA
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('.emergency-cta__desktop') as HTMLButtonElement | null;
+    const details = document.getElementById('emergency-details');
+
+    if (!btn || !details) return;
+
+    btn.addEventListener('click', () => {
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!isExpanded));
+
+      if (isExpanded) {
+        details.setAttribute('hidden', '');
+      } else {
+        details.removeAttribute('hidden');
+      }
+    });
+  });
+</script>

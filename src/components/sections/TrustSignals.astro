@@ -1,0 +1,168 @@
+---
+/**
+ * TrustSignals — Horizontal badge/card row displaying credentials.
+ * Positioned directly after the hero section on the homepage.
+ * Reads all entries from the trust-signals content collection.
+ * Renders nothing if zero entries are defined.
+ *
+ * Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5
+ */
+import { getCollection } from 'astro:content';
+
+// Icon map — maps icon string identifiers to inline SVG paths
+const iconMap: Record<string, string> = {
+  'shield-check': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+  'umbrella': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/></svg>',
+  'award': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
+  'check-circle': '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+};
+
+// Default fallback icon (generic badge)
+const fallbackIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>';
+
+// Load trust signals from content collection
+const signals = await getCollection('trust-signals');
+---
+
+{signals.length > 0 && (
+  <section class="trust-signals" aria-label="Credentials and certifications">
+    <div class="trust-signals__container">
+      <ul class="trust-signals__list" role="list">
+        {signals.map((signal) => (
+          <li class="trust-signals__item">
+            <div class="trust-signals__icon" role="img" aria-label={signal.data.altText}>
+              <Fragment set:html={iconMap[signal.data.icon] || fallbackIcon} />
+            </div>
+            <div class="trust-signals__content">
+              <span class="trust-signals__label">{signal.data.label}</span>
+              {signal.data.description && (
+                <span class="trust-signals__description">{signal.data.description}</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  /* ─── Trust Signals Section ──────────────────────────────────────────────── */
+  .trust-signals {
+    background-color: var(--color-secondary);
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .trust-signals__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .trust-signals__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .trust-signals__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .trust-signals__item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .trust-signals__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    color: var(--color-accent);
+  }
+
+  .trust-signals__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .trust-signals__label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  .trust-signals__description {
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+    opacity: 0.75;
+    line-height: 1.4;
+  }
+
+  /* ─── Responsive: horizontal scroll on mobile ────────────────────────────── */
+  @media (max-width: 768px) {
+    .trust-signals__list {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 0.75rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .trust-signals__item {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+    }
+
+    /* Scrollbar styling */
+    .trust-signals__list::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .trust-signals__list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+    }
+
+    .trust-signals__list::-webkit-scrollbar-thumb {
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+  }
+
+  /* ─── Desktop: grid layout for 3-5 items ─────────────────────────────────── */
+  @media (min-width: 769px) {
+    .trust-signals__list {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .trust-signals {
+      padding: 2rem 0;
+    }
+
+    .trust-signals__item {
+      padding: 1.25rem 1.5rem;
+    }
+  }
+</style>

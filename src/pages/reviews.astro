@@ -1,0 +1,137 @@
+---
+/**
+ * Reviews page — Dedicated page showing ALL customer testimonials.
+ * Displays every testimonial from the collection without a limit.
+ * Uses PageLayout for consistent site structure.
+ *
+ * Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Card from '@components/ui/Card.astro';
+import StarRating from '@components/ui/StarRating.astro';
+import { getCollection, render } from 'astro:content';
+
+// Fetch all testimonials
+const allTestimonials = await getCollection('testimonials');
+
+// Sort: featured first, then by definition order
+const sorted = [...allTestimonials].sort((a, b) => {
+  if (a.data.featured && !b.data.featured) return -1;
+  if (!a.data.featured && b.data.featured) return 1;
+  return 0;
+});
+
+// Render markdown body for each testimonial
+const testimonials = await Promise.all(
+  sorted.map(async (t) => {
+    const { Content } = await render(t);
+    return { ...t, Content };
+  })
+);
+---
+
+<PageLayout title="Customer Reviews" description="Read reviews from our satisfied roofing customers.">
+  <section class="reviews-page" aria-label="Customer Reviews">
+    <div class="reviews-page__container">
+      <h1 class="reviews-page__heading">Customer Reviews</h1>
+      {testimonials.length === 0 ? (
+        <p class="reviews-page__empty">No reviews yet.</p>
+      ) : (
+        <div class="reviews-page__grid">
+          {testimonials.map(({ data, Content }) => (
+            <Card class="testimonial-card">
+              <div class="testimonial-card__stars">
+                <StarRating rating={data.rating} />
+              </div>
+              <div class="testimonial-card__body">
+                <Content />
+              </div>
+              <div class="testimonial-card__footer">
+                <span class="testimonial-card__name">{data.customerName}</span>
+                {data.location && (
+                  <span class="testimonial-card__location">{data.location}</span>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .reviews-page {
+    padding: 4rem 1.5rem;
+  }
+
+  .reviews-page__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .reviews-page__heading {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-display, 2.5rem));
+    text-align: center;
+    margin: 0 0 2.5rem;
+    color: var(--color-text);
+  }
+
+  .reviews-page__empty {
+    text-align: center;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+
+  .reviews-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Desktop: 2 columns */
+  @media (min-width: 768px) {
+    .reviews-page__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .testimonial-card__stars {
+    margin-bottom: 0.75rem;
+  }
+
+  .testimonial-card__body {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    line-height: 1.6;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  .testimonial-card__body :global(p) {
+    margin: 0;
+  }
+
+  .testimonial-card__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .testimonial-card__name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+  }
+
+  .testimonial-card__location {
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+</style>

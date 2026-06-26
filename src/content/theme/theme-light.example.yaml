@@ -1,0 +1,19 @@
+# Light theme preset example (for reference — copy to theme.yaml to use)
+mode: "light"
+colors:
+  primary: "#1e3a5f"        # deep blue (header, footer bg on light mode)
+  secondary: "#f0f4f8"      # light gray-blue (card bg)
+  accent: "#f59e0b"         # amber/orange (CTAs, links)
+  background: "#ffffff"     # white page bg
+  text: "#1a202c"           # near-black text
+  emergency: "#dc2626"      # red (emergency bar)
+fonts:
+  heading: "'Montserrat', sans-serif"
+  body: "'Inter', sans-serif"
+  scale:
+    small: "0.875rem"
+    base: "1rem"
+    large: "1.25rem"
+    display: "3.5rem"
+sectionDividerStyle: "wave"
+borderRadius: "0.75rem"

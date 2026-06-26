@@ -1,0 +1,163 @@
+---
+/**
+ * GalleryGrid — Grid of gallery entries with lazy loading.
+ * Reads from the gallery content collection, sorts by order field,
+ * and renders each entry as a card. Entries with afterImage show a
+ * BeforeAfterSlider; entries without show only the beforeImage.
+ *
+ * Props:
+ *   - emptyMessage (optional): Message when zero entries exist
+ *
+ * Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7
+ */
+import BeforeAfterSlider from './BeforeAfterSlider.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  emptyMessage?: string;
+}
+
+const { emptyMessage = 'No gallery entries yet. Check back soon!' } = Astro.props;
+
+// Fetch all gallery entries and sort by order field
+const allEntries = await getCollection('gallery');
+const entries = allEntries.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+---
+
+<section class="gallery-grid" aria-label="Project Gallery">
+  {entries.length === 0 ? (
+    <p class="gallery-grid__empty">{emptyMessage}</p>
+  ) : (
+    <div class="gallery-grid__cards">
+      {entries.map((entry) => (
+        <article class="gallery-grid__card">
+          <div class="gallery-grid__card-media">
+            {entry.data.afterImage ? (
+              <BeforeAfterSlider
+                beforeImage={entry.data.beforeImage}
+                afterImage={entry.data.afterImage}
+              />
+            ) : (
+              <div class="gallery-grid__single-image">
+                <img
+                  src={entry.data.beforeImage.src}
+                  alt={entry.data.beforeImage.alt}
+                  loading="lazy"
+                  width="600"
+                  height="400"
+                />
+              </div>
+            )}
+          </div>
+          <div class="gallery-grid__card-body">
+            <h3 class="gallery-grid__card-title">{entry.data.title}</h3>
+            {entry.data.category && (
+              <span class="gallery-grid__card-category">{entry.data.category}</span>
+            )}
+            {entry.data.description && (
+              <p class="gallery-grid__card-description">{entry.data.description}</p>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  .gallery-grid {
+    padding: 4rem 1.5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .gallery-grid__empty {
+    text-align: center;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.7;
+    padding: 3rem 1rem;
+  }
+
+  .gallery-grid__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  /* Desktop: 2 columns */
+  @media (min-width: 768px) {
+    .gallery-grid__cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .gallery-grid__card {
+    background-color: var(--color-background, #1a1a2e);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius, 0.5rem);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .gallery-grid__card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .gallery-grid__card-media {
+    width: 100%;
+  }
+
+  .gallery-grid__single-image {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--border-radius, 0.5rem) var(--border-radius, 0.5rem) 0 0;
+  }
+
+  .gallery-grid__single-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gallery-grid__card-body {
+    padding: 1.25rem;
+  }
+
+  .gallery-grid__card-title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.5rem;
+  }
+
+  .gallery-grid__card-category {
+    display: inline-block;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.75rem);
+    font-weight: 600;
+    color: var(--color-accent, #f7a400);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .gallery-grid__card-description {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #fff);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-grid__card {
+      transition: none;
+    }
+  }
+</style>

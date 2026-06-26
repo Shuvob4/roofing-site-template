@@ -1,0 +1,71 @@
+---
+/**
+ * BaseLayout — HTML shell with theme tokens, global styles, meta tags, and font loading.
+ * 
+ * Theme tokens are generated at render time (which is build time for static output)
+ * by reading theme.yaml from content collections and running generateCSSCustomProperties().
+ * This avoids needing a separate build step or tokens.css file generation.
+ */
+import { getEntry } from 'astro:content';
+import { generateCSSCustomProperties } from '@utils/theme-generator';
+
+// Import global stylesheets
+import '@styles/global.css';
+import '@styles/utilities.css';
+import '@styles/section-dividers.css';
+
+// Load site config for default title
+const siteEntry = await getEntry('site', 'config');
+const siteConfig = siteEntry.data;
+
+// Load theme config from content collection
+const themeEntry = await getEntry('theme', 'theme');
+const themeConfig = themeEntry.data;
+
+// Generate CSS custom properties from theme config at build time
+const tokenCSS = generateCSSCustomProperties(themeConfig);
+
+// Props
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = siteConfig.businessName,
+  description = '',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    {description && <meta name="description" content={description} />}
+    <title>{title}</title>
+
+    <!-- Preload Google Fonts: Montserrat (headings) and Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+      />
+    </noscript>
+
+    <!-- Theme tokens generated from theme.yaml at build time -->
+    <style is:inline set:html={tokenCSS}></style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

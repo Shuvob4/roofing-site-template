@@ -1,0 +1,171 @@
+---
+/**
+ * Neighborhoods Page — Showcases completed projects by area.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ *
+ * Validates: Requirements 23.1, 23.2, 23.3, 23.4, 23.5, 23.6, 23.7
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.neighborhoods ?? false;
+  if (!isEnabled) return [];
+  const entries = await getCollection('neighborhoods');
+  if (entries.length === 0) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+const entries = await getCollection('neighborhoods');
+const neighborhoods = entries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.areaName.localeCompare(b.areaName));
+---
+
+<PageLayout title="Neighborhoods" description="See our completed roofing projects across local neighborhoods and read what our customers have to say.">
+  <section class="neighborhoods-page" aria-label="Neighborhoods served">
+    <div class="neighborhoods-page__header">
+      <h1 class="neighborhoods-page__title">Neighborhoods We Serve</h1>
+      <p class="neighborhoods-page__subtitle">
+        Explore our work across local neighborhoods and see what our customers have to say.
+      </p>
+    </div>
+    {neighborhoods.length === 0 ? (
+      <p class="neighborhoods-page__empty">No neighborhood data available yet. Check back soon.</p>
+    ) : (
+      <div class="neighborhoods-page__grid">
+        {neighborhoods.map((area) => (
+          <article class="neighborhood-card">
+            <h2 class="neighborhood-card__name">{area.areaName}</h2>
+            <div class="neighborhood-card__count">
+              <span class="neighborhood-card__number">{area.projectsCompleted}</span>
+              <span class="neighborhood-card__label">Projects Completed</span>
+            </div>
+            {area.featuredTestimonialText && (
+              <blockquote class="neighborhood-card__testimonial">
+                <p class="neighborhood-card__quote">&ldquo;{area.featuredTestimonialText}&rdquo;</p>
+                {area.customerName && (
+                  <footer class="neighborhood-card__customer">
+                    &mdash; {area.customerName}
+                  </footer>
+                )}
+              </blockquote>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</PageLayout>
+
+<style>
+  .neighborhoods-page {
+    min-height: 60vh;
+    padding: 3rem 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .neighborhoods-page__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .neighborhoods-page__title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-display, 2.5rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 0.75rem;
+  }
+
+  .neighborhoods-page__subtitle {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .neighborhoods-page__empty {
+    text-align: center;
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.6;
+  }
+
+  .neighborhoods-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .neighborhood-card {
+    padding: 2rem;
+    background: color-mix(in srgb, var(--color-background, #1a1a2e) 80%, var(--color-primary, #4a90d9) 20%);
+    border-radius: var(--border-radius, 0.5rem);
+  }
+
+  .neighborhood-card__name {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-large, 1.25rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+    margin: 0 0 1rem;
+  }
+
+  .neighborhood-card__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .neighborhood-card__number {
+    font-family: var(--font-heading, sans-serif);
+    font-size: var(--font-size-display, 2.5rem);
+    font-weight: 700;
+    color: var(--color-primary, #4a90d9);
+    line-height: 1;
+  }
+
+  .neighborhood-card__label {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #fff);
+    opacity: 0.7;
+  }
+
+  .neighborhood-card__testimonial {
+    margin: 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text, #fff) 15%, transparent);
+  }
+
+  .neighborhood-card__quote {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text, #fff);
+    opacity: 0.85;
+    font-style: italic;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+  }
+
+  .neighborhood-card__customer {
+    font-family: var(--font-body, sans-serif);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text, #fff);
+    opacity: 0.6;
+  }
+
+  @media (min-width: 768px) {
+    .neighborhoods-page__grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+</style>

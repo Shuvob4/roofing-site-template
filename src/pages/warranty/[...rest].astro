@@ -1,0 +1,188 @@
+---
+/**
+ * Warranty page — Displays warranty information entries.
+ * Uses getStaticPaths() to conditionally generate this route.
+ * If module disabled: page is NOT generated at build time (no orphan URL).
+ *
+ * Validates: Requirements 17.1–17.6
+ */
+import PageLayout from '@layouts/PageLayout.astro';
+import Card from '@components/ui/Card.astro';
+import { getEntry, getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const modulesEntry = await getEntry('modules', 'modules');
+  const isEnabled = modulesEntry?.data?.warranty ?? false;
+  if (!isEnabled) return [];
+  const allWarranties = await getCollection('warranty');
+  if (allWarranties.length === 0) return [];
+  return [{ params: { rest: undefined } }];
+}
+
+// Load warranty entries
+const allWarranties = await getCollection('warranty');
+---
+
+<PageLayout title="Warranty Information" description="Comprehensive warranty coverage for roofing materials and workmanship.">
+  <section class="warranty" aria-labelledby="warranty-heading">
+    <div class="warranty__header">
+      <h1 id="warranty-heading" class="warranty__title">Warranty Information</h1>
+      <p class="warranty__subtitle">We stand behind our work with comprehensive warranty coverage.</p>
+    </div>
+
+    <div class="warranty__grid">
+      {allWarranties.map((entry) => (
+        <Card class="warranty-card">
+          <div class="warranty-card__type-badge">
+            <span class:list={['warranty-card__badge', `warranty-card__badge--${entry.data.warrantyType}`]}>
+              {entry.data.warrantyType === 'manufacturer' ? 'Manufacturer Warranty' : 'Workmanship Warranty'}
+            </span>
+          </div>
+
+          <div class="warranty-card__duration">
+            <svg class="warranty-card__duration-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span class="warranty-card__duration-text">{entry.data.duration}</span>
+          </div>
+
+          <h2 class="warranty-card__heading">Coverage</h2>
+          <p class="warranty-card__coverage">{entry.data.coverageDescription}</p>
+
+          <h3 class="warranty-card__conditions-heading">Conditions</h3>
+          <p class="warranty-card__conditions">{entry.data.conditions}</p>
+        </Card>
+      ))}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  /* ─── Warranty Content ───────────────────────────────────────────────────── */
+  .warranty {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .warranty__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .warranty__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, var(--font-size-display, 3rem));
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .warranty__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .warranty__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .warranty__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ─── Card Content ───────────────────────────────────────────────────────── */
+  .warranty-card__type-badge {
+    margin-bottom: 1rem;
+  }
+
+  .warranty-card__badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+    border-radius: calc(var(--border-radius) / 2);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .warranty-card__badge--manufacturer {
+    background-color: var(--color-accent);
+    color: #ffffff;
+  }
+
+  .warranty-card__badge--workmanship {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .warranty-card__duration {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+  }
+
+  .warranty-card__duration-icon {
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .warranty-card__duration-text {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .warranty-card__heading {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.5rem;
+  }
+
+  .warranty-card__coverage {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text);
+    opacity: 0.85;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .warranty-card__conditions-heading {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-small, 0.875rem);
+    font-weight: 600;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin: 0 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .warranty-card__conditions {
+    font-family: var(--font-body);
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-text);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin: 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+</style>

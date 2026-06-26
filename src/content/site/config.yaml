@@ -1,0 +1,26 @@
+businessName: "Apex Roofing Co."
+phone: "+1-555-123-4567"
+email: "info@apexroofing.ca"
+address:
+  street: "123 Main Street"
+  city: "Toronto"
+  province: "ON"
+  postalCode: "M5V 1A1"
+  country: "Canada"
+hours:
+  - days: "Monday - Friday"
+    hours: "8:00 AM - 6:00 PM"
+  - days: "Saturday"
+    hours: "9:00 AM - 3:00 PM"
+  - days: "Sunday"
+    hours: "Closed"
+serviceAreas:
+  - "Toronto"
+  - "Mississauga"
+  - "Scarborough"
+  - "North York"
+social:
+  google: "https://g.page/apex-roofing"
+  facebook: "https://facebook.com/apexroofing"
+mapEmbedUrl: "https://www.google.com/maps/embed?pb=placeholder"
+websiteUrl: "https://apexroofing.ca"
