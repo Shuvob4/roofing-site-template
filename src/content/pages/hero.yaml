@@ -1,5 +1,6 @@
 headline: "Your Trusted Local Roofing Experts"
 subheadline: "Professional roof repair, installation, and maintenance serving the Greater Toronto Area for over 20 years."
+# NOTE: Replace with client's hero image (recommended: 1920x1080 .jpg, <500KB, dark subject works best)
 backgroundImage:
   src: "/images/hero/hero-worker.jpg"
   alt: "Professional roofer installing shingles on a residential home"

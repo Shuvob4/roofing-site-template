@@ -1,6 +1,7 @@
 ---
 title: "Emergency Roof Repair"
 shortDescription: "24/7 rapid response for storm damage, leaks, and urgent roofing emergencies to protect your property."
+# NOTE: Replace with client's image in .jpg format (recommended: 800x500px, <200KB)
 image: "/images/services/emergency-repair.jpg"
 icon: "alert-triangle"
 category: "residential"

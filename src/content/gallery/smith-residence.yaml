@@ -1,9 +1,10 @@
 title: "Smith Residence - Complete Roof Replacement"
+# NOTE: Replace with client's before/after images in .jpg or .png (recommended: 800x600px, <300KB)
 beforeImage:
-  src: "/images/gallery/smith-before.jpg"
+  src: "/images/gallery/smith-before.png"
   alt: "Damaged asphalt shingle roof with visible wear and missing shingles"
 afterImage:
-  src: "/images/gallery/smith-after.jpg"
+  src: "/images/gallery/smith-after.png"
   alt: "Newly installed architectural shingles on the Smith residence"
 description: "Full tear-off and replacement of a 25-year-old asphalt shingle roof with premium architectural shingles."
 category: "residential"

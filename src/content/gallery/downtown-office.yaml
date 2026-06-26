@@ -1,9 +1,10 @@
 title: "Downtown Office - Flat Roof Restoration"
+# NOTE: Replace with client's before/after images in .jpg or .png (recommended: 800x600px, <300KB)
 beforeImage:
-  src: "/images/gallery/downtown-office-before.jpg"
+  src: "/images/gallery/downtown-before.png"
   alt: "Deteriorating flat roof with ponding water and membrane damage"
 afterImage:
-  src: "/images/gallery/downtown-office-after.jpg"
+  src: "/images/gallery/downtown-after.png"
   alt: "Restored flat roof with new TPO membrane and proper drainage"
 description: "Commercial flat roof restoration with TPO membrane installation and improved drainage system."
 category: "commercial"

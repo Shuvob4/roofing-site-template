@@ -1,7 +1,9 @@
 ---
 title: "Roof Repair & Restoration"
 shortDescription: "Expert leak detection and repair services to extend the life of your existing roof and protect your home."
-image: "/images/services/roof-repair.jpg"
+# NOTE: Replace with client's image in .jpg or .webp format (recommended: 800x500px, <200KB)
+# Original demo uses .webp — client should provide .jpg for best compatibility
+image: "/images/services/roof-repair.webp"
 icon: "wrench"
 category: "residential"
 detailLink: "/services/roof-repair"

@@ -1,9 +1,10 @@
 title: "Maple Street - Storm Damage Repair"
+# NOTE: Replace with client's before/after images in .jpg or .png (recommended: 800x600px, <300KB)
 beforeImage:
-  src: "/images/gallery/maple-street-before.jpg"
+  src: "/images/gallery/maple-before.png"
   alt: "Roof with significant storm damage including torn shingles and exposed decking"
 afterImage:
-  src: "/images/gallery/maple-street-after.jpg"
+  src: "/images/gallery/maple-after.png"
   alt: "Fully repaired roof with new impact-resistant shingles"
 description: "Emergency storm damage repair including structural reinforcement and impact-resistant shingle installation."
 category: "residential"
